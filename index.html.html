@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aspen EDU Publishing Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17252c;--teal:#1c4550;--teal-deep:#0f2e36;--paper:#f6f4ef;--paper-raised:#fffdf8;
+  --brass:#a97a3a;--brass-soft:#e8dcc5;--line:#d8d2c2;--good:#3c6e4f;--err:#a13d3d;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Source Serif 4',Georgia,serif;font-weight:600;margin:0}
+header{background:var(--teal-deep);color:var(--paper-raised);padding:2.2rem 1.5rem 0;border-bottom:3px solid var(--brass)}
+header .inner{max-width:960px;margin:0 auto}
+header h1{font-size:1.7rem}
+header p{margin:.5rem 0 1.4rem;color:#d7e2e0;font-size:.95rem;max-width:62ch;line-height:1.5}
+.tabs{display:flex;gap:.2rem;max-width:960px;margin:0 auto;overflow-x:auto}
+.tabs button{flex:none;padding:.7rem 1.1rem;border:none;background:transparent;color:#a9c1bd;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;border-bottom:3px solid transparent}
+.tabs button.active{color:#fff;border-color:var(--brass)}
+main{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.panel{background:var(--paper-raised);border:1px solid var(--line);border-radius:4px;margin-bottom:2rem;overflow:hidden}
+.panel-head{padding:1.1rem 1.4rem;background:var(--brass-soft);border-bottom:1px solid var(--line);display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.panel-head h2{font-size:1.15rem;color:var(--teal-deep)}
+.panel-head span{font-size:.82rem;color:#6b6250}
+.panel-body{padding:1.4rem}
+label{display:block;font-size:.82rem;font-weight:500;margin:1rem 0 .3rem;color:#4a4436}
+label:first-child{margin-top:0}
+label .opt{font-weight:400;color:#948c78}
+input[type=date],input[type=number],input[type=text],textarea{width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:3px;background:#fff;font-family:'Inter',sans-serif;font-size:.92rem;color:var(--ink)}
+textarea{min-height:60px;resize:vertical;line-height:1.4}
+input:focus,button:focus,textarea:focus,.chip input:focus + span{outline:2px solid var(--teal);outline-offset:1px}
+.row{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+.row>div{flex:1;min-width:180px}
+.upload{border:1.5px dashed var(--line);border-radius:4px;padding:1.3rem;text-align:center;background:var(--paper)}
+.upload label.btn{display:inline-block;padding:.6rem 1.2rem;background:var(--teal);color:#fff;border-radius:3px;font-size:.88rem;font-weight:500;cursor:pointer}
+.upload input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
+.upload p{margin:.6rem 0 0;font-size:.82rem;color:#6b6250}
+.chips{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.5rem}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0}
+.chip span{display:inline-block;padding:.5rem 1rem;border:1px solid var(--line);border-radius:3px;font-size:.86rem;font-weight:500;color:#544d3c;background:#fff}
+.chip input:checked + span{background:var(--teal);border-color:var(--teal);color:#fff}
+details{margin-top:1rem;border:1px solid var(--line);border-radius:3px;background:var(--paper)}
+summary{cursor:pointer;padding:.6rem .9rem;font-weight:500;font-size:.86rem;color:var(--teal-deep)}
+details .inside{padding:0 .9rem .9rem;white-space:pre-wrap;font-size:.84rem;color:#4a4436;max-height:260px;overflow:auto}
+details .inside.docprev{white-space:normal;background:#fff;border:1px solid var(--line);border-radius:3px;padding:.7rem .9rem;max-height:520px;font-size:.86rem;color:#242424;line-height:1.5}
+.docprev.editing{outline:2px solid var(--teal);outline-offset:1px;background:#fffdf5}
+.docprev .dptbl{border-collapse:collapse;width:100%;margin:.35rem 0}
+.docprev .dptbl td{border:1px solid #b9c0ca;padding:.3rem .6rem;vertical-align:top}
+.docprev .dpp{margin:.18rem 0;white-space:pre-wrap;min-height:1.1em}
+.docprev .dp-h1{font-size:1.2rem;font-weight:700}
+.docprev .dp-h2{font-size:1.05rem;font-weight:700}
+.docprev .dp-h3{font-size:.95rem;font-weight:700}
+.docprev .dp-b{font-weight:700}
+.docprev .dp-i{font-style:italic}
+.docprev .dp-u{text-decoration:underline}
+.docprev .dpcbx{display:inline-block;position:relative;box-sizing:border-box;width:15px;height:15px;vertical-align:-3px;margin:0 .25em 0 .05em;border:1.6px solid #3b4a57;border-radius:3px;background:#fff;font-size:0;line-height:0;overflow:hidden;user-select:none}
+.docprev .dpcbx[data-cb="1"]{background:#e3f5e8;border-color:#1f7a3a}
+.docprev .dpcbx[data-cb="1"]::before,.docprev .dpcbx[data-cb="1"]::after{content:'';position:absolute;left:50%;top:50%;width:19px;height:2.4px;background:#1f7a3a}
+.docprev .dpcbx[data-cb="1"]::before{transform:translate(-50%,-50%) rotate(45deg)}
+.docprev .dpcbx[data-cb="1"]::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.docprev.editing .dpcbx{cursor:pointer}
+.docprev .dpimg{max-width:200px;max-height:110px;display:block;margin:.2rem 0}
+.field{display:flex;gap:1rem;padding:.4rem 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.field:last-child{border-bottom:none}
+.field .k{color:#6b6250;flex-shrink:0;min-width:190px}
+.field .v{font-weight:500;white-space:pre-wrap}
+.credit-block{border:1px solid var(--line);border-radius:3px;padding:1rem 1.1rem;margin-bottom:1rem;background:var(--paper)}
+.credit-block h4{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;color:var(--teal-deep);margin:0 0 .7rem;padding-bottom:.5rem;border-bottom:1px solid var(--line)}
+.flag{font-size:.83rem;color:var(--err);margin-top:.4rem;line-height:1.4}
+.note{font-size:.82rem;color:#6b6250;margin-top:.3rem}
+.stamp-note{border-left:4px solid var(--brass);background:var(--brass-soft);padding:.6rem .8rem;margin:.6rem 0;font-weight:700;font-size:.88rem;line-height:1.45;color:var(--ink)}
+.qa-qtext.qa-correct{border-color:#1f7a3a;background:#e3f5e8;color:#17252c}
+.empty{color:#948c78;font-size:.9rem;font-style:italic;padding:.5rem 0}
+.mand-box{margin-top:.9rem;border-radius:3px;padding:.8rem 1rem;font-size:.86rem}
+.mand-box.ok{background:#e8f3ec;border:1px solid var(--good);color:#2b5038}
+.mand-box.bad{background:#fbeaea;border:1px solid var(--err);color:#7a2b2b}
+.mand-box ul{margin:.4rem 0 0;padding-left:1.2rem}
+.mand-box li{margin-bottom:.2rem}
+button.pri{padding:.6rem 1.2rem;border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:3px;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer}
+.placeholder{padding:2.5rem 1.4rem;text-align:center;color:#6b6250}
+.placeholder h3{color:var(--teal-deep);margin-bottom:.5rem;font-size:1.1rem}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.on{opacity:1}
+footer{max-width:960px;margin:0 auto;padding:0 1.5rem 3rem;color:#948c78;font-size:.8rem}
+h4.sec{margin:1.4rem 0 .5rem;font-family:'Inter',sans-serif;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);border-bottom:2px solid var(--brass-soft);padding-bottom:.3rem}
+.field .v.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.74rem;max-height:150px;overflow:auto;background:var(--paper);border:1px solid var(--line);padding:.5rem;flex:1;font-weight:400}
+button.mini{align-self:flex-start;padding:.3rem .6rem;font-size:.75rem;border:1px solid var(--teal);background:transparent;color:var(--teal);border-radius:3px;cursor:pointer;flex-shrink:0}
+button.mini svg{vertical-align:-2px;margin-right:.25rem}
+.logo-strip{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.3rem;align-items:center}
+.imgthumb{max-width:220px;max-height:110px;border:1px solid var(--line);border-radius:3px;background:#fff;padding:.25rem;display:block}
+.qa-admin{font-size:.9rem;margin:.2rem 0 .4rem}
+.qa-admin a{color:var(--teal);font-weight:500}
+.qa-q{margin:1rem 0 .3rem;font-size:.88rem;color:var(--teal-deep)}
+.qa-qtext{display:flex;gap:.8rem;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:.6rem .8rem;font-size:.9rem;line-height:1.5}
+.qa-qtext>span{flex:1;min-width:220px}
+.qa-meta{font-size:.8rem;color:#6b6250;margin-top:.3rem;line-height:1.4}
+.qa-note{font-size:.8rem;color:#6b6250;margin-top:.4rem;line-height:1.4}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--ink:#e9e4d8;--paper:#161b1c;--paper-raised:#1e2426;--teal:#5fa8a8;--teal-deep:#0c1416;--brass:#c99a54;--brass-soft:#2a2620;--line:#3a3630;--err:#e2857f}
+  input,textarea{background:#232a2c;color:var(--ink)}
+  .chip span{background:#232a2c;color:#c9c2ac}
+  .upload,.credit-block,details{background:#1a2022}
+  .mand-box.ok{background:#17301f;color:#bfe5cc}
+  .mand-box.bad{background:#3a1c1c;color:#f2c6c6}
+}
+@media (max-width:600px){.row>div{min-width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <h1>Aspen EDU Publishing Assistant</h1>
+    <p id="pageSubtitle">Upload a Production Ticket and get the field values ready to paste into Aspen — verified against 3 real Certificate Page examples (CME/CNE/CPE, EBAC, and CME/CNE/CPE/IPCE). Everything runs in your browser; nothing is uploaded anywhere.</p>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="active" data-tab="cert">Certificate Page</button>
+    <button data-tab="social">Social Media Certificate Page</button>
+    <button data-tab="event">Event Entry Page</button>
+    <button data-tab="core">Core Program</button>
+    <button data-tab="program">Program Production</button>
+  </nav>
+</header>
+
+<main>
+<section id="panel-cert" class="tabpanel">
+
+  <section class="panel">
+    <div class="panel-head"><h2>1. Upload the Production Ticket</h2><span>.docx or .txt</span></div>
+    <div class="panel-body">
+      <div class="upload">
+        <label class="btn">Choose file<input type="file" id="file" accept=".docx,.txt"></label>
+        <p id="upMsg">This workflow extracts the core content, credit, and disclosure fields needed for a standard Live Certificate Page (CME, Nurse CE, Pharmacist CE, EBAC, and IPCE). Project ID is never in the PT and always needs a manual entry.</p>
+      </div>
+      <details id="rawWrap" hidden><summary>Extracted ticket text (for reference / manual checking)</summary><div class="inside docprev" id="rawText"></div><div class="inside" id="rawBar" hidden><button class="mini" data-rawedit="">Edit</button> <span class="note" id="rawEditedNote" style="display:none"></span></div><div class="inside" id="rawEditBar" hidden><button class="mini" data-rawsave="">Save</button> <button class="mini" data-rawcancel="">Cancel</button> <span class="note" id="rawEditNote"></span></div><div class="inside" id="rawEditor" hidden><textarea id="rawTa" rows="14" style="width:100%"></textarea></div></details>
+      <div id="mandatory" class="mand-box" hidden></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>2. Confirm the fields</h2><span>Edit anything the upload got wrong or missed</span></div>
+    <div class="panel-body">
+      <div class="row"><div><label for="title">Title</label><input type="text" id="title"></div>
+      <div><label for="subtitle">Subtitle</label><input type="text" id="subtitle"></div></div>
+      <div class="row"><div><label for="pid">Project ID <span class="opt">not in the PT — from Workfront/Salesforce, e.g. 452046.01</span></label><input type="text" id="pid"></div>
+      <div><label for="rdate">Event date <span class="opt">(from Page Display Date)</span></label><input type="date" id="rdate"></div></div>
+      <label for="aud">Live Target Audience</label>
+      <textarea id="aud"></textarea>
+      <label for="goal">Goal Statement</label>
+      <textarea id="goal"></textarea>
+      <label for="obj">Learning Objectives</label>
+      <textarea id="obj"></textarea>
+      <label for="disc">Association Disclaimer Statement <span class="opt">(optional — goes above the standard disclosure text)</span></label>
+      <textarea id="disc"></textarea>
+      <label for="supp">Supporter Statement</label>
+      <textarea id="supp"></textarea>
+      <label for="teaser">Formatted Teaser <span class="opt">(from "Rapid Activity Overview" — populated only when present in the PT)</span></label>
+      <textarea id="teaser"></textarea>
+
+      <label for="partner">Partner Statement <span class="opt">(if present — added to Misc Provider Statement)</span></label>
+      <textarea id="partner"></textarea>
+      <label for="plogo">Partner Logo and Badge <span class="opt">(if present — added below Grant Attribution)</span></label>
+      <textarea id="plogo"></textarea>
+      <div id="logoPreview" class="logo-strip" hidden></div>
+      <div class="row"><div><label for="qaid">Questionnaire ID <span class="opt">(created in the questionnaire tool)</span></label><input type="text" id="qaid"></div>
+      <div><label>Peer Reviewer</label><div class="chips"><label class="chip"><input type="checkbox" id="peer"><span>Peer Reviewer box checked in PT</span></label></div></div></div>
+      <div class="row"><div><label>Exclude Navigation <span class="opt">(Activity tab — Off on every Certificate Page example seen)</span></label><div class="chips"><label class="chip"><input type="checkbox" id="exclnav"><span>Exclude Navigation</span></label></div></div></div>
+
+      <label>Credit types checked on this ticket</label>
+      <div class="chips" id="creditChips">
+        <label class="chip"><input type="checkbox" value="CME"><span>CME</span></label>
+        <label class="chip"><input type="checkbox" value="CNE"><span>Nurse CE (CNE)</span></label>
+        <label class="chip"><input type="checkbox" value="CPE"><span>CPE / Pharmacist</span></label>
+        <label class="chip"><input type="checkbox" value="IPCE"><span>IPCE</span></label>
+        <label class="chip"><input type="checkbox" value="EBAC"><span>EBAC</span></label>
+        <label class="chip"><input type="checkbox" value="AAPA"><span>AAPA</span></label>
+        <label class="chip"><input type="checkbox" value="EACCME"><span>EACCME</span></label>
+        <label class="chip"><input type="checkbox" value="IME"><span>IME</span></label>
+        <label class="chip"><input type="checkbox" value="CPD"><span>CPD</span></label>
+      </div>
+      <div id="creditInputs"></div>
+      <div class="row"><div><button class="pri" id="gen">Generate Aspen fields</button></div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="resPanel" hidden>
+    <div class="panel-head"><h2>3. Paste into Aspen</h2><span id="genMsg"></span></div>
+    <div class="panel-body">
+      <div id="out"></div>
+      <div class="row"><div><button class="pri" id="copy">Copy all fields</button></div></div>
+    </div>
+  </section>
+</section>
+
+<section id="panel-social" class="tabpanel" hidden>
+
+  <section class="panel">
+    <div class="panel-head"><h2>1. Upload the Production Ticket</h2><span>.docx or .txt</span></div>
+    <div class="panel-body">
+      <div class="upload">
+        <label class="btn">Choose file<input type="file" id="sm_file" accept=".docx,.txt"></label>
+        <p id="sm_upMsg">This workflow extracts the same fields as Certificate Page — including the Formatted Teaser when present — plus the 1-year expiration window and the "MedscapeLIVE - Social Event" provider override. Project ID is never in the PT and always needs a manual entry.</p>
+      </div>
+      <details id="sm_rawWrap" hidden><summary>Extracted ticket text (for reference / manual checking)</summary><div class="inside docprev" id="sm_rawText"></div><div class="inside" id="sm_rawBar" hidden><button class="mini" data-rawedit="sm_">Edit</button> <span class="note" id="sm_rawEditedNote" style="display:none"></span></div><div class="inside" id="sm_rawEditBar" hidden><button class="mini" data-rawsave="sm_">Save</button> <button class="mini" data-rawcancel="sm_">Cancel</button> <span class="note" id="sm_rawEditNote"></span></div><div class="inside" id="sm_rawEditor" hidden><textarea id="sm_rawTa" rows="14" style="width:100%"></textarea></div></details>
+      <div id="sm_mandatory" class="mand-box" hidden></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>2. Confirm the fields</h2><span>Edit anything the upload got wrong or missed</span></div>
+    <div class="panel-body">
+      <div class="row"><div><label for="sm_title">Title</label><input type="text" id="sm_title"></div>
+      <div><label for="sm_subtitle">Subtitle</label><input type="text" id="sm_subtitle"></div></div>
+      <div class="row"><div><label for="sm_pid">Project ID <span class="opt">not in the PT — from Workfront/Salesforce, e.g. 452046.01</span></label><input type="text" id="sm_pid"></div>
+      <div><label for="sm_rdate">Event date <span class="opt">(from Page Display Date)</span></label><input type="date" id="sm_rdate"></div></div>
+      <label for="sm_aud">Live Target Audience</label>
+      <textarea id="sm_aud"></textarea>
+      <label for="sm_goal">Goal Statement</label>
+      <textarea id="sm_goal"></textarea>
+      <label for="sm_obj">Learning Objectives</label>
+      <textarea id="sm_obj"></textarea>
+      <label for="sm_disc">Association Disclaimer Statement <span class="opt">(optional — goes above the standard disclosure text)</span></label>
+      <textarea id="sm_disc"></textarea>
+      <label for="sm_supp">Supporter Statement</label>
+      <textarea id="sm_supp"></textarea>
+      <label for="sm_teaser">Formatted Teaser <span class="opt">(from "Rapid Activity Overview" — populated only when present in the PT)</span></label>
+      <textarea id="sm_teaser"></textarea>
+
+      <label for="sm_partner">Partner Statement <span class="opt">(if present — added to Misc Provider Statement)</span></label>
+      <textarea id="sm_partner"></textarea>
+      <label for="sm_plogo">Partner Logo and Badge <span class="opt">(if present — added below Grant Attribution)</span></label>
+      <textarea id="sm_plogo"></textarea>
+      <div id="sm_logoPreview" class="logo-strip" hidden></div>
+      <div class="row"><div><label for="sm_qaid">Questionnaire ID <span class="opt">(created in the questionnaire tool)</span></label><input type="text" id="sm_qaid"></div>
+      <div><label>Peer Reviewer</label><div class="chips"><label class="chip"><input type="checkbox" id="sm_peer"><span>Peer Reviewer box checked in PT</span></label></div></div></div>
+      <div class="row"><div><label>Exclude Navigation <span class="opt">(Activity tab — Off on every Social Media example seen)</span></label><div class="chips"><label class="chip"><input type="checkbox" id="sm_exclnav"><span>Exclude Navigation</span></label></div></div></div>
+
+      <label>Credit types checked on this ticket</label>
+      <div class="chips" id="sm_creditChips">
+        <label class="chip"><input type="checkbox" value="CME"><span>CME</span></label>
+        <label class="chip"><input type="checkbox" value="CNE"><span>Nurse CE (CNE)</span></label>
+        <label class="chip"><input type="checkbox" value="CPE"><span>CPE / Pharmacist</span></label>
+        <label class="chip"><input type="checkbox" value="IPCE"><span>IPCE</span></label>
+        <label class="chip"><input type="checkbox" value="EBAC"><span>EBAC</span></label>
+        <label class="chip"><input type="checkbox" value="AAPA"><span>AAPA</span></label>
+        <label class="chip"><input type="checkbox" value="EACCME"><span>EACCME</span></label>
+        <label class="chip"><input type="checkbox" value="IME"><span>IME</span></label>
+        <label class="chip"><input type="checkbox" value="CPD"><span>CPD</span></label>
+      </div>
+      <div id="sm_creditInputs"></div>
+      <div class="row"><div><button class="pri" id="sm_gen">Generate Aspen fields</button></div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="sm_resPanel" hidden>
+    <div class="panel-head"><h2>3. Paste into Aspen</h2><span id="sm_genMsg"></span></div>
+    <div class="panel-body">
+      <div id="sm_out"></div>
+      <div class="row"><div><button class="pri" id="sm_copy">Copy all fields</button></div></div>
+    </div>
+  </section>
+</section>
+
+<section id="panel-event" class="tabpanel" hidden>
+
+  <section class="panel">
+    <div class="panel-head"><h2>1. Upload the Production Ticket</h2><span>.docx or .txt</span></div>
+    <div class="panel-body">
+      <div class="upload">
+        <label class="btn">Choose file<input type="file" id="ee_file" accept=".docx,.txt"></label>
+        <p id="ee_upMsg">This workflow extracts the same fields as Certificate Page, plus the Event Entry-specific Clinical Gap Statement. Project ID is never in the PT and always needs a manual entry.</p>
+      </div>
+      <details id="ee_rawWrap" hidden><summary>Extracted ticket text (for reference / manual checking)</summary><div class="inside docprev" id="ee_rawText"></div><div class="inside" id="ee_rawBar" hidden><button class="mini" data-rawedit="ee_">Edit</button> <span class="note" id="ee_rawEditedNote" style="display:none"></span></div><div class="inside" id="ee_rawEditBar" hidden><button class="mini" data-rawsave="ee_">Save</button> <button class="mini" data-rawcancel="ee_">Cancel</button> <span class="note" id="ee_rawEditNote"></span></div><div class="inside" id="ee_rawEditor" hidden><textarea id="ee_rawTa" rows="14" style="width:100%"></textarea></div></details>
+      <div id="ee_mandatory" class="mand-box" hidden></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>2. Confirm the fields</h2><span>Edit anything the upload got wrong or missed</span></div>
+    <div class="panel-body">
+      <div class="row"><div><label for="ee_title">Title</label><input type="text" id="ee_title"></div>
+      <div><label for="ee_subtitle">Subtitle</label><input type="text" id="ee_subtitle"></div></div>
+      <div class="row"><div><label for="ee_pid">Project ID <span class="opt">not in the PT — from Workfront/Salesforce, e.g. 452046.01</span></label><input type="text" id="ee_pid"></div>
+      <div><label for="ee_rdate">Event date <span class="opt">(from Page Display Date)</span></label><input type="date" id="ee_rdate"></div></div>
+      <label for="ee_aud">Live Target Audience</label>
+      <textarea id="ee_aud"></textarea>
+      <label for="ee_goal">Goal Statement</label>
+      <textarea id="ee_goal"></textarea>
+      <label for="ee_obj">Learning Objectives</label>
+      <textarea id="ee_obj"></textarea>
+      <label for="ee_gap">Clinical Gap Statement <span class="opt">(from the PT's "Gap" field — NOT always blank here, unlike Certificate Page)</span></label>
+      <textarea id="ee_gap"></textarea>
+      <label for="ee_disc">Association Disclaimer Statement <span class="opt">(optional — goes above the standard disclosure text)</span></label>
+      <textarea id="ee_disc"></textarea>
+      <label for="ee_supp">Supporter Statement</label>
+      <textarea id="ee_supp"></textarea>
+      <label for="ee_teaser">Formatted Teaser <span class="opt">(from "Rapid Activity Overview" — populated only when present in the PT)</span></label>
+      <textarea id="ee_teaser"></textarea>
+
+      <label for="ee_partner">Partner Statement <span class="opt">(if present — added to Misc Provider Statement)</span></label>
+      <textarea id="ee_partner"></textarea>
+      <label for="ee_plogo">Partner Logo and Badge <span class="opt">(if present — added below Grant Attribution)</span></label>
+      <textarea id="ee_plogo"></textarea>
+      <div id="ee_logoPreview" class="logo-strip" hidden></div>
+      <div class="row"><div><label for="ee_qaid">Questionnaire ID <span class="opt">(created in the questionnaire tool)</span></label><input type="text" id="ee_qaid"></div>
+      <div><label>Peer Reviewer</label><div class="chips"><label class="chip"><input type="checkbox" id="ee_peer"><span>Peer Reviewer box checked in PT</span></label></div></div></div>
+      <div class="row"><div><label>Exclude Navigation <span class="opt">(Activity tab — On on every Event Entry Page example seen)</span></label><div class="chips"><label class="chip"><input type="checkbox" id="ee_exclnav" checked><span>Exclude Navigation</span></label></div></div></div>
+
+      <label>Credit types checked on this ticket</label>
+      <div class="chips" id="ee_creditChips">
+        <label class="chip"><input type="checkbox" value="CME"><span>CME</span></label>
+        <label class="chip"><input type="checkbox" value="CNE"><span>Nurse CE (CNE)</span></label>
+        <label class="chip"><input type="checkbox" value="CPE"><span>CPE / Pharmacist</span></label>
+        <label class="chip"><input type="checkbox" value="IPCE"><span>IPCE</span></label>
+        <label class="chip"><input type="checkbox" value="EBAC"><span>EBAC</span></label>
+        <label class="chip"><input type="checkbox" value="AAPA"><span>AAPA</span></label>
+        <label class="chip"><input type="checkbox" value="EACCME"><span>EACCME</span></label>
+        <label class="chip"><input type="checkbox" value="IME"><span>IME</span></label>
+        <label class="chip"><input type="checkbox" value="CPD"><span>CPD</span></label>
+      </div>
+      <div id="ee_creditInputs"></div>
+      <div class="row"><div><button class="pri" id="ee_gen">Generate Aspen fields</button></div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="ee_resPanel" hidden>
+    <div class="panel-head"><h2>3. Paste into Aspen</h2><span id="ee_genMsg"></span></div>
+    <div class="panel-body">
+      <div id="ee_out"></div>
+      <div class="row"><div><button class="pri" id="ee_copy">Copy all fields</button></div></div>
+    </div>
+  </section>
+</section>
+
+<section id="panel-core" class="tabpanel" hidden>
+
+  <section class="panel">
+    <div class="panel-head"><h2>1. Upload the Production Ticket</h2><span>.docx or .txt</span></div>
+    <div class="panel-body">
+      <div class="upload">
+        <label class="btn">Choose file<input type="file" id="co_file" accept=".docx,.txt"></label>
+        <p id="co_upMsg">This workflow reads a Core Program Production Ticket: title, hook statement (teaser), course details, competencies, credits, learning objectives with their LO levels, and every posttest question with its answers, explanation and objective mapping. It also sets the fixed Core Program values and the questionnaire setup. Release date is today's date.</p>
+      </div>
+      <details id="co_rawWrap" hidden><summary>Extracted ticket text (for reference / manual checking)</summary><div class="inside docprev" id="co_rawText"></div><div class="inside" id="co_rawBar" hidden><button class="mini" data-rawedit="co_">Edit</button> <span class="note" id="co_rawEditedNote" style="display:none"></span></div><div class="inside" id="co_rawEditBar" hidden><button class="mini" data-rawsave="co_">Save</button> <button class="mini" data-rawcancel="co_">Cancel</button> <span class="note" id="co_rawEditNote"></span></div><div class="inside" id="co_rawEditor" hidden><textarea id="co_rawTa" rows="14" style="width:100%"></textarea></div></details>
+      <div id="co_mandatory" class="mand-box" hidden></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>2. Confirm the fields</h2><span>Edit anything the upload got wrong or missed</span></div>
+    <div class="panel-body">
+      <label for="co_title">Title <span class="opt">(Core Program tickets have no subtitle)</span></label>
+      <input type="text" id="co_title">
+      <div class="row"><div><label for="co_pid">Project ID <span class="opt">(from "Activity SF#(s)" in the ticket)</span></label><input type="text" id="co_pid"></div>
+      <div><label for="co_rdate">Activity Release Date <span class="opt">(today — the day you create and stage it)</span></label><input type="date" id="co_rdate"></div></div>
+      <label for="co_teaser">Hook Statement (Teaser) <span class="opt">(becomes the Formatted Teaser)</span></label>
+      <textarea id="co_teaser"></textarea>
+      <div class="row"><div><label for="co_primary">Primary Competency <span class="opt">(ABMS/ACGME box marked in the ticket)</span></label><input type="text" id="co_primary"></div>
+      <div><label for="co_secondary">Secondary Competencies <span class="opt">(IPCE Competencies boxes marked in the ticket, one per line)</span></label><textarea id="co_secondary" style="min-height:44px"></textarea></div></div>
+      <label for="co_aud">Target Audience</label>
+      <textarea id="co_aud"></textarea>
+      <label for="co_goal">Goal Statement</label>
+      <textarea id="co_goal"></textarea>
+      <label for="co_gap">Clinical Gap Statement</label>
+      <textarea id="co_gap"></textarea>
+      <label for="co_obj">Learning Objectives</label>
+      <textarea id="co_obj"></textarea>
+      <label for="co_partner">Partner Statement <span class="opt">(if present — added to Misc Provider Statement and Partners)</span></label>
+      <textarea id="co_partner"></textarea>
+      <div id="co_logoPreview" class="logo-strip" hidden></div>
+      <div class="row"><div><label for="co_qaid">Questionnaire ID <span class="opt">(created in the questionnaire tool)</span></label><input type="text" id="co_qaid"></div>
+      <div><label>Peer Reviewer</label><div class="chips"><label class="chip"><input type="checkbox" id="co_peer"><span>Peer Reviewer box checked in PT</span></label></div></div></div>
+      <div class="row"><div><label>Exclude Navigation <span class="opt">(Activity tab — Off on the Core Program example)</span></label><div class="chips"><label class="chip"><input type="checkbox" id="co_exclnav"><span>Exclude Navigation</span></label></div></div></div>
+
+      <label>Credit types checked on this ticket</label>
+      <div class="chips" id="co_creditChips">
+        <label class="chip"><input type="checkbox" value="CME"><span>CME (ACCME)</span></label>
+        <label class="chip"><input type="checkbox" value="MOC"><span>ABIM MOC</span></label>
+        <label class="chip"><input type="checkbox" value="CNE"><span>Nurse CE (ANCC)</span></label>
+        <label class="chip"><input type="checkbox" value="CPE"><span>Pharmacist CE (ACPE)</span></label>
+        <label class="chip"><input type="checkbox" value="AAPA"><span>AAPA</span></label>
+        <label class="chip"><input type="checkbox" value="IPCE"><span>IPCE</span></label>
+        <label class="chip"><input type="checkbox" value="EBAC"><span>EBAC</span></label>
+      </div>
+      <div id="co_creditInputs"></div>
+      <div class="row"><div><button class="pri" id="co_gen">Generate Aspen fields</button></div></div>
+    </div>
+  </section>
+
+  <section class="panel" id="co_resPanel" hidden>
+    <div class="panel-head"><h2>3. Paste into Aspen</h2><span id="co_genMsg"></span></div>
+    <div class="panel-body">
+      <div id="co_out"></div>
+      <div class="row"><div><button class="pri" id="co_copy">Copy all fields</button></div></div>
+    </div>
+  </section>
+</section>
+<section id="panel-program" class="tabpanel" hidden><div class="panel"><div class="placeholder"><h3>Program Production</h3><p>Not built yet — send over the field map and example tickets for this workflow and it'll be added here.</p><div class="stamp-note">Important: For Core Program and Program Production only, open “Get STAMP Tags” in Aspen, click “Get Clinical Tags from STAMP,” then right-click “Curate STAMP Tags” and copy its link. Paste that link into the Workfront field named “Stamp.”</div></div></div></section>
+</main>
+<footer id="pageFooter">Field values confirmed against 3 real completed Certificate Pages (CME/CNE/CPE; EBAC; CME/CNE/CPE/IPCE). Always check against the current Production Ticket before entering into Aspen.</footer>
+<div id="toast" role="status"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1800)}
+
+const TAB_INFO={
+  cert:{subtitle:'Upload a Production Ticket to generate the Aspen field values for a standard Live Certificate Page — covering CME, Nurse CE, Pharmacist CE, EBAC, and IPCE credit. Everything runs in your browser; nothing is uploaded anywhere.',
+        footer:'Field values confirmed against 3 real completed Certificate Pages (CME/CNE/CPE; EBAC; CME/CNE/CPE/IPCE). Always check against the current Production Ticket before entering into Aspen.'},
+  social:{subtitle:'Upload a Production Ticket to generate the Aspen field values for a Social Media Certificate Page — including the 1-year expiration window and the "MedscapeLIVE - Social Event" provider override. Everything runs in your browser; nothing is uploaded anywhere.',
+        footer:'Field values confirmed against 3 real completed Social Media Certificate Pages (CME/LOC/CNE/CPE; CME/LOC/IPCE; IME). Always check against the current Production Ticket before entering into Aspen.'},
+  event:{subtitle:'Upload a Production Ticket to generate the Aspen field values for a Live Event Entry Page — including the Clinical Gap Statement unique to this workflow. Everything runs in your browser; nothing is uploaded anywhere.',
+        footer:'Field values confirmed against 2 real completed Event Entry Pages (CME/LOC/CNE/CPE; EBAC). Always check against the current Production Ticket before entering into Aspen.'},
+  core:{subtitle:'Upload a Core Program Production Ticket to generate the Aspen field values for a Core Program — including the fixed Clinical Briefs settings, three-year expiration, competencies, credits, learning objectives with LO levels, and the CME Posttest questions for the questionnaire. Everything runs in your browser; nothing is uploaded anywhere.',
+        footer:'Field values confirmed against 1 real completed Core Program (CME/LOC/MOC/CNE/CPE/AAPA/IPCE), including its Q&A application page. Always check against the current Production Ticket before entering into Aspen.'},
+  program:{subtitle:'Program Production field mapping is not built yet — this will generate the Aspen field values for Program Production once Production Tickets and completed Aspen examples are provided.',
+        footer:'No reference examples provided yet for Program Production.'}
+};
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.tabpanel').forEach(p=>p.hidden=true);
+  $('panel-'+b.dataset.tab).hidden=false;
+  const info=TAB_INFO[b.dataset.tab];
+  if(info){$('pageSubtitle').textContent=info.subtitle;$('pageFooter').textContent=info.footer;}
+}));
+
+// ---- Mandatory Missing Fields check ----
+const uploadedFlag={};
+function fieldPresent(id){const el=document.getElementById(id);return !!(el&&el.value&&el.value.trim())}
+function mandatoryCoreFields(p){
+  if(p==='co_')return [['Title','co_title'],['Target Audience','co_aud'],['Goal Statement','co_goal'],['Learning Objectives','co_obj']];
+  return [['Title',p+'title'],['Subtitle',p+'subtitle'],['Live Target Audience',p+'aud'],['Goal Statement',p+'goal'],['Learning Objectives',p+'obj']];
+}
+function mandatoryCreditFields(p,checked){
+  const out=[];
+  if(checked.includes('CME'))out.push(['CME max credits (For Physicians)',p+'cmeHrs']);
+  if(checked.includes('CNE'))out.push(['CNE max credits (For Nurses)',p+'cneHrs']);
+  if(checked.includes('CPE')){out.push(['CPE max credits (For Pharmacists)',p+'cpeHrs']);out.push(['CPE Universal Activity Number',p+'cpeUAN']);}
+  if(checked.includes('MOC'))out.push(['ABIM MOC PARS Activity Identifier',p+'mocID']);
+  if(checked.includes('AAPA'))out.push(['AAPA max credits (For Physician Assistants)',p+'aapaHrs']);
+  if(checked.includes('EBAC')){out.push(['EBAC total effective education time (minutes)',p+'ebacMin']);out.push(['EBAC Activity ID #',p+'ebacID']);}
+  return out;
+}
+function renderMandatory(p,checkedFn){
+  if(!uploadedFlag[p])return;
+  const div=document.getElementById(p+'mandatory');if(!div)return;
+  const fields=mandatoryCoreFields(p).concat(mandatoryCreditFields(p,checkedFn()));
+  const missing=fields.filter(f=>!fieldPresent(f[1]));
+  if(p==='co_')coExtras().forEach(x=>missing.push([x]));
+  div.hidden=false;
+  if(!missing.length){
+    div.className='mand-box ok';
+    div.innerHTML='All mandatory fields found in the Production Ticket.';
+  }else{
+    div.className='mand-box bad';
+    div.innerHTML='<strong>Missing mandatory fields:</strong><ul>'+missing.map(f=>'<li>'+f[0]+'</li>').join('')+'</ul>';
+  }
+}
+
+// ---- partner logos extracted from the .docx ----
+const ptLogos={'':[],'sm_':[],'ee_':[],'co_':[]};
+const NS_A='http://schemas.openxmlformats.org/drawingml/2006/main';
+const NS_R='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+const NS_V='urn:schemas-microsoft-com:vml';
+const NS_REL='http://schemas.openxmlformats.org/package/2006/relationships';
+const NS_PIC='http://schemas.openxmlformats.org/drawingml/2006/picture';
+const NS_W14='http://schemas.microsoft.com/office/word/2010/wordml';
+const rawMode={'':'plain','sm_':'plain','ee_':'plain','co_':'plain'};
+const lastZip={'':null,'sm_':null,'ee_':null,'co_':null};
+const editSnap={'':'','sm_':'','ee_':'','co_':''};
+const escAttr=s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+async function extractCellImages(tr,zip){
+  const out=[];
+  if(!tr||!zip)return out;
+  const rels={};
+  try{
+    const relFile=zip.file('word/_rels/document.xml.rels');
+    if(relFile){
+      const relDom=parseXml(await relFile.async('string'));
+      Array.from(relDom.getElementsByTagNameNS(NS_REL,'Relationship')).forEach(r=>{
+        const t=r.getAttribute('Target')||'';
+        if(/^media\//i.test(t))rels[r.getAttribute('Id')]='word/'+t;
+        else if(/^\/word\/media\//i.test(t))rels[r.getAttribute('Id')]=t.slice(1);
+      });
+    }
+  }catch(e){return out}
+  const rids=[];
+  Array.from(tr.getElementsByTagNameNS(NS_A,'blip')).forEach(b=>{
+    const rid=b.getAttributeNS(NS_R,'embed')||b.getAttribute('r:embed');if(rid)rids.push(rid);
+  });
+  Array.from(tr.getElementsByTagNameNS(NS_V,'imagedata')).forEach(v=>{
+    const rid=v.getAttributeNS(NS_R,'id')||v.getAttribute('r:id');if(rid)rids.push(rid);
+  });
+  for(const rid of rids){
+    const path=rels[rid];if(!path)continue;
+    if(/\.(emf|wmf)$/i.test(path))continue;
+    const file=zip.file(path);if(!file)continue;
+    const mime=/\.png$/i.test(path)?'image/png':/\.gif$/i.test(path)?'image/gif':/\.bmp$/i.test(path)?'image/bmp':'image/jpeg';
+    try{out.push({dataUrl:'data:'+mime+';base64,'+(await file.async('base64')),name:path.split('/').pop()})}catch(e){}
+  }
+  return out;
+}
+function findLogoRow(dom,labelRe){
+  const trs=dom.getElementsByTagNameNS(W,'tr');
+  for(const tr of Array.from(trs)){
+    const tcs=kids(tr).filter(c=>c.localName==='tc');
+    if(tcs.length&&labelRe.test(cellText(tcs[0])))return tr;
+  }
+  return null;
+}
+function renderLogoPreview(p){
+  const div=document.getElementById(p+'logoPreview');if(!div)return;
+  const imgs=ptLogos[p]||[];
+  div.hidden=!imgs.length;
+  div.innerHTML=imgs.length?'<span class="note">Logo image(s) found in the PT — they will be shown below the Grant Attribution statement in the output:</span>'+imgs.map(i=>'<img class="imgthumb" src="'+i.dataUrl+'" alt="'+escAttr(i.name)+'" title="'+escAttr(i.name)+'">').join(''):'';
+}
+
+// ---- rich document preview: OOXML -> structured HTML, editable, and back ----
+async function buildRidMap(zip){
+  const map={};
+  if(!zip)return map;
+  try{
+    const relFile=zip.file('word/_rels/document.xml.rels');
+    if(relFile){
+      const relDom=parseXml(await relFile.async('string'));
+      for(const r of Array.from(relDom.getElementsByTagNameNS(NS_REL,'Relationship'))){
+        const t=r.getAttribute('Target')||'';
+        let path=null;
+        if(/^media\//i.test(t))path='word/'+t;
+        else if(/^\/word\/media\//i.test(t))path=t.slice(1);
+        if(!path||/\.(emf|wmf)$/i.test(path))continue;
+        const file=zip.file(path);if(!file)continue;
+        const mime=/\.png$/i.test(path)?'image/png':/\.gif$/i.test(path)?'image/gif':/\.bmp$/i.test(path)?'image/bmp':'image/jpeg';
+        try{map[r.getAttribute('Id')]='data:'+mime+';base64,'+(await file.async('base64'))}catch(e){}
+      }
+    }
+  }catch(e){}
+  return map;
+}
+const DP_H={'heading1':'dp-h1','heading2':'dp-h2','heading3':'dp-h3','heading4':'dp-h3','heading5':'dp-h3','heading6':'dp-h3'};
+const DP_HREV={'dp-h1':'heading1','dp-h2':'heading2','dp-h3':'heading3'};
+const HL_COLORS={yellow:'#ffff00',green:'#00ff00',cyan:'#00ffff',magenta:'#ff00ff',red:'#ff0000',blue:'#0000ff',darkRed:'#800000',darkGreen:'#008000',darkBlue:'#000080',darkYellow:'#808000',darkMagenta:'#800080',darkCyan:'#008080',lightGray:'#d3d3d3',darkGray:'#a9a9a9',black:'#000000',white:'#ffffff'};
+function renderDocPreview(dom,ridMap){
+  const body=dom.getElementsByTagNameNS(W,'body')[0];
+  if(!body)return '';
+  const renderR=r=>{
+    const blip=r.getElementsByTagNameNS(NS_A,'blip')[0];
+    const vim=r.getElementsByTagNameNS(NS_V,'imagedata')[0];
+    const rid=blip?(blip.getAttributeNS(NS_R,'embed')||blip.getAttribute('r:embed')):(vim?(vim.getAttributeNS(NS_R,'id')||vim.getAttribute('r:id')):'');
+    let img='';
+    if(rid&&ridMap&&ridMap[rid])img='<img class="dpimg" data-rid="'+escAttr(rid)+'" src="'+ridMap[rid]+'">';
+    const fld=kids(r).find(c=>c.localName==='fldChar');
+    if(fld&&(fld.getAttributeNS(W,'fldCharType')||fld.getAttribute('w:fldCharType'))==='begin'){
+      const ff=kids(fld).find(c=>c.localName==='ffData');
+      const cbx=ff?ff.getElementsByTagNameNS(W,'checkBox')[0]:null;
+      if(cbx)return cbGlyph(cbx);
+    }
+    const rPr=kids(r).find(c=>c.localName==='rPr');
+    let b=false,it=false,u=false,color='',hl='',sz='';
+    if(rPr){
+      b=kids(rPr).some(c=>c.localName==='b');
+      it=kids(rPr).some(c=>c.localName==='i');
+      const ue=kids(rPr).find(c=>c.localName==='u');
+      u=!!ue&&((ue.getAttributeNS(W,'val')||ue.getAttribute('w:val')||'single').toLowerCase()!=='none');
+      const ce=kids(rPr).find(c=>c.localName==='color');
+      if(ce){const v=ce.getAttributeNS(W,'val')||ce.getAttribute('w:val');if(v&&v.toLowerCase()!=='auto')color=v.toLowerCase()}
+      const he=kids(rPr).find(c=>c.localName==='highlight');
+      if(he){const v=he.getAttributeNS(W,'val')||he.getAttribute('w:val');if(v&&v!=='none')hl=v}
+      const se=kids(rPr).find(c=>c.localName==='sz');
+      if(se){const v=parseInt(se.getAttributeNS(W,'val')||se.getAttribute('w:val')||'0',10);if(v)sz=Math.round(v/2)+'pt'}
+    }
+    let inner='';
+    for(const c of kids(r)){
+      if(c.localName==='t')inner+=esc(c.textContent);
+      else if(c.localName==='tab')inner+='\t';
+      else if(/^(br|cr)$/.test(c.localName))inner+='<br>';
+    }
+    if(!inner&&!img)return '';
+    let style='';
+    if(color)style+='color:#'+color+';';
+    if(hl)style+='background-color:'+(HL_COLORS[hl]||'#ffff00')+';';
+    if(sz)style+='font-size:'+sz+';';
+    return '<span class="dpr'+(b?' dp-b':'')+(it?' dp-i':'')+(u?' dp-u':'')+'"'+(color?' data-c="'+color+'"':'')+(hl?' data-hl="'+hl+'"':'')+(sz?' data-sz="'+sz+'"':'')+(style?' style="'+style+'"':'')+'>'+inner+'</span>'+img;
+  };
+  const cbGlyph=cbx=>{
+    let on=false;
+    const c=kids(cbx).find(x=>x.localName==='checked');
+    if(c)on=!/^0|false|off$/i.test(c.getAttributeNS(W,'val')||c.getAttribute('w:val')||'1');
+    else{const d=kids(cbx).find(x=>x.localName==='default');if(d)on=!/^0|false|off$/i.test(d.getAttributeNS(W,'val')||d.getAttribute('w:val')||'0')}
+    return '<span class="dpcbx" data-cb="'+(on?'1':'0')+'" contenteditable="false" title="'+(on?'Checked':'Unchecked')+'">'+(on?'☒':'☐')+'</span>';
+  };
+  const renderSdt=n=>{
+    const pr=kids(n).find(c=>c.localName==='sdtPr');
+    const content=kids(n).find(c=>c.localName==='sdtContent');
+    if(!content)return '';
+    let glyph=null,on=false;
+    if(pr){
+      const cb=pr.getElementsByTagNameNS(NS_W14,'checkbox')[0];
+      if(cb){
+        const c=cb.getElementsByTagNameNS(NS_W14,'checked')[0];
+        on=c?!/^(0|false|off)$/i.test(c.getAttributeNS(NS_W14,'val')||c.getAttribute('w14:val')||c.getAttribute('val')||'1'):false;
+        const gv=(tag,d)=>{const e=cb.getElementsByTagNameNS(NS_W14,tag)[0];if(!e)return d;const v=parseInt(e.getAttributeNS(NS_W14,'val')||e.getAttribute('w14:val')||e.getAttribute('val')||'0',10);return v>0?String.fromCharCode(v):d};
+        glyph=on?'☒':'☐';
+      }
+    }
+    if(glyph!==null)return '<span class="dpcbx" data-cb="'+(on?'1':'0')+'" contenteditable="false" title="'+(on?'Checked':'Unchecked')+'">'+esc(glyph)+'</span>';
+    return kids(content).map(c=>c.localName==='p'?renderP(c):c.localName==='tbl'?renderTbl(c):c.localName==='sdt'?renderSdt(c):c.localName==='r'?renderR(c):'').join('');
+  };
+  const renderP=p=>{
+    const pPr=kids(p).find(c=>c.localName==='pPr');
+    let cls='dpp',style='',align='';
+    if(pPr){
+      const st=kids(pPr).find(c=>c.localName==='pStyle');
+      if(st){const v=(st.getAttributeNS(W,'val')||st.getAttribute('w:val')||'').toLowerCase();if(DP_H[v])cls+=' '+DP_H[v]}
+      const jc=kids(pPr).find(c=>c.localName==='jc');
+      if(jc){const v=(jc.getAttributeNS(W,'val')||jc.getAttribute('w:val')||'').toLowerCase();if(v==='center'||v==='right'){style+='text-align:'+v+';';align=v}}
+    }
+    let cbSkip=false;
+    const inl=c=>{
+      if(c.localName==='sdt')return renderSdt(c);
+      if(/^(hyperlink|ins|smartTag|customXml|moveTo)$/.test(c.localName))return kids(c).map(inl).join('');
+      const f=kids(c).find(x=>x.localName==='fldChar');
+      if(f){
+        const ft=f.getAttributeNS(W,'fldCharType')||f.getAttribute('w:fldCharType');
+        if(cbSkip){if(ft==='end')cbSkip=false;return ''}
+        if(ft==='begin'&&kids(f).some(x=>x.localName==='ffData'))cbSkip=true;
+      }
+      return renderR(c);
+    };
+    const inner=kids(p).filter(c=>c.localName!=='pPr').map(inl).join('');
+    return '<div class="'+cls+'"'+(align?' data-align="'+align+'"':'')+(style?' style="'+style+'"':'')+'>'+(inner||'<br>')+'</div>';
+  };
+  const renderTbl=tbl=>{
+    const sdtFlat=(parent,name)=>{const out=[];kids(parent).forEach(c=>{if(c.localName===name)out.push(c);else if(c.localName==='sdt'){const sc=kids(c).find(x=>x.localName==='sdtContent');if(sc)sdtFlat(sc,name).forEach(x=>out.push(x))}});return out};
+    const colOf=sdtFlat(tbl,'tr').map(tr=>{
+      let col=0;
+      return sdtFlat(tr,'tc').map(tc=>{
+        const tcPr=kids(tc).find(c=>c.localName==='tcPr');
+        let span=1,vMerge=null,fill='';
+        if(tcPr){
+          const gs=kids(tcPr).find(c=>c.localName==='gridSpan');
+          if(gs)span=parseInt(gs.getAttributeNS(W,'val')||gs.getAttribute('w:val')||'1',10)||1;
+          const vm=kids(tcPr).find(c=>c.localName==='vMerge');
+          if(vm)vMerge=vm.getAttributeNS(W,'val')||vm.getAttribute('w:val')||'continue';
+          const shd=kids(tcPr).find(c=>c.localName==='shd');
+          if(shd){const f=(shd.getAttributeNS(W,'fill')||shd.getAttribute('w:fill')||'').toLowerCase();if(/^[0-9a-f]{6}$/.test(f))fill=f}
+        }
+        const cell={tc,span,vMerge,fill,col,cont:!!(vMerge&&vMerge!=='restart')};
+        col+=span;
+        return cell;
+      });
+    });
+    let html='<table class="dptbl"><tbody>';
+    colOf.forEach((list,r)=>{
+      html+='<tr>';
+      list.forEach(cell=>{
+        if(cell.cont)return;
+        let rs=1;
+        if(cell.vMerge==='restart'){
+          for(let rr=r+1;rr<colOf.length;rr++){
+            const hit=colOf[rr].some(x=>x.cont&&x.col===cell.col&&x.span===cell.span);
+            if(hit)rs++;else break;
+          }
+        }
+        const st=(cell.fill?'background-color:#'+cell.fill+';':'');
+        html+='<td'+(cell.span>1?' colspan="'+cell.span+'"':'')+(rs>1?' rowspan="'+rs+'"':'')+(st?' style="'+st+'"':'')+'>'+kids(cell.tc).filter(c=>c.localName!=='tcPr').map(n=>n.localName==='p'?renderP(n):n.localName==='tbl'?renderTbl(n):n.localName==='sdt'?renderSdt(n):'').join('')+'</td>';
+      });
+      html+='</tr>';
+    });
+    return html+'</tbody></table>';
+  };
+  return kids(body).map(n=>n.localName==='p'?renderP(n):n.localName==='tbl'?renderTbl(n):n.localName==='sdt'?renderSdt(n):'').join('');
+}
+function previewToDom(previewEl){
+  const doc=document.implementation.createDocument(W,'w:document',null);
+  const mk=(ns,t)=>doc.createElementNS(ns,t);
+  const body=mk(W,'w:body');
+  doc.documentElement.appendChild(body);
+  const wt=txt=>{const t=mk(W,'w:t');t.setAttribute('xml:space','preserve');t.textContent=txt;return t};
+  const mkImgRun=imgEl=>{
+    const rid=imgEl.getAttribute&&imgEl.getAttribute('data-rid');
+    if(!rid)return null;
+    const r=mk(W,'w:r'),drawing=mk(W,'w:drawing'),inline=mk(NS_A,'wp:inline'),graphic=mk(NS_A,'a:graphic'),gData=mk(NS_A,'a:graphicData'),pic=mk(NS_PIC,'pic:pic'),blipFill=mk(NS_PIC,'pic:blipFill'),blip=mk(NS_A,'a:blip');
+    blip.setAttributeNS(NS_R,'r:embed',rid);
+    blipFill.appendChild(blip);pic.appendChild(blipFill);gData.appendChild(pic);graphic.appendChild(gData);inline.appendChild(graphic);drawing.appendChild(inline);r.appendChild(drawing);
+    return r;
+  };
+  const mkRun=sp=>{
+    const r=mk(W,'w:r');
+    const rPr=mk(W,'w:rPr');let has=false;
+    if(sp.classList.contains('dp-b')){rPr.appendChild(mk(W,'w:b'));has=true}
+    if(sp.classList.contains('dp-i')){rPr.appendChild(mk(W,'w:i'));has=true}
+    if(sp.classList.contains('dp-u')){const u=mk(W,'w:u');u.setAttribute('w:val','single');rPr.appendChild(u);has=true}
+    const c=sp.getAttribute('data-c');if(c){const e=mk(W,'w:color');e.setAttribute('w:val',c);rPr.appendChild(e);has=true}
+    const h=sp.getAttribute('data-hl');if(h){const e=mk(W,'w:highlight');e.setAttribute('w:val',h);rPr.appendChild(e);has=true}
+    const s=sp.getAttribute('data-sz');if(s){const e=mk(W,'w:sz');e.setAttribute('w:val',String(parseInt(s,10)*2));rPr.appendChild(e);has=true}
+    if(has)r.appendChild(rPr);
+    const fillInline=node=>{
+      Array.from(node.childNodes).forEach(n=>{
+        if(n.nodeType===3){if(n.textContent)r.appendChild(wt(n.textContent))}
+        else if(n.nodeName==='BR')r.appendChild(mk(W,'w:br'));
+        else if(n.nodeType===1&&n.classList.contains('dpimg')){const ir=mkImgRun(n);if(ir)r.appendChild(ir)}
+        else if(n.nodeType===1)fillInline(n);
+      });
+    };
+    fillInline(sp);
+    return r;
+  };
+  const simpleRun=txt=>{const r=mk(W,'w:r');r.appendChild(wt(txt));return r};
+  const fillP=(pEl,p)=>{
+    const pPr=mk(W,'w:pPr');let hasPr=false;
+    Array.from(pEl.classList).forEach(cl=>{
+      if(DP_HREV[cl]){const e=mk(W,'w:pStyle');e.setAttribute('w:val',DP_HREV[cl]);pPr.appendChild(e);hasPr=true}
+    });
+    const align=pEl.getAttribute('data-align');
+    if(align){const jc=mk(W,'w:jc');jc.setAttribute('w:val',align);pPr.appendChild(jc);hasPr=true}
+    if(hasPr)p.appendChild(pPr);
+    Array.from(pEl.childNodes).forEach(n=>{
+      if(n.nodeType===3){if(n.textContent)p.appendChild(simpleRun(n.textContent))}
+      else if(n.nodeName==='BR'){const r=mk(W,'w:r');r.appendChild(mk(W,'w:br'));p.appendChild(r)}
+      else if(n.nodeType===1){
+        if(n.classList.contains('dpr'))p.appendChild(mkRun(n));
+        else if(n.classList.contains('dpimg')){const ir=mkImgRun(n);if(ir)p.appendChild(ir)}
+        else fillP(n,p);
+      }
+    });
+    return p;
+  };
+  const walk=(container,into)=>{
+    Array.from(container.children).forEach(ch=>{
+      if(ch.matches&&ch.matches('table.dptbl')){
+        const tbl=mk(W,'w:tbl');
+        into.appendChild(tbl);
+        Array.from(ch.children).forEach(tbody=>{
+          Array.from(tbody.children).forEach(trEl=>{
+            if(trEl.nodeName!=='TR')return;
+            const tr=mk(W,'w:tr');tbl.appendChild(tr);
+            Array.from(trEl.children).forEach(tcEl=>{
+              if(tcEl.nodeName!=='TD')return;
+              const tc=mk(W,'w:tc');tr.appendChild(tc);
+              const gs=parseInt(tcEl.getAttribute('colspan')||'1',10);
+              if(gs>1){
+                const tcPr=mk(W,'w:tcPr');const g=mk(W,'w:gridSpan');g.setAttribute('w:val',String(gs));tcPr.appendChild(g);tc.insertBefore(tcPr,tc.firstChild);
+              }
+              walk(tcEl,tc);
+              if(!kids(tc).length){
+                if(tcEl.textContent.trim()){const p=mk(W,'w:p');p.appendChild(simpleRun(tcEl.textContent));tc.appendChild(p)}
+                else tc.appendChild(mk(W,'w:p'));
+              }
+            });
+          });
+        });
+      }else if(ch.matches&&ch.matches('.dpp')){
+        into.appendChild(fillP(ch,mk(W,'w:p')));
+      }
+    });
+  };
+  walk(previewEl,body);
+  return doc;
+}
+async function regenerateFromPreview(p){
+  const t=document.getElementById(p+'rawText');
+  const fn=p===''?extractPT:p==='sm_'?extractPTSocial:p==='co_'?extractPTCore:extractPTEvent;
+  if(rawMode[p]==='rich'){
+    await fn(previewToDom(t),lastZip[p],true);
+  }else{
+    const paras=(t.textContent||'').split('\n').map(l=>'<w:p><w:r><w:t xml:space="preserve">'+esc(l)+'</w:t></w:r></w:p>').join('');
+    await fn(parseXml('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="'+W+'"><w:body>'+paras+'</w:body></w:document>'),null,true);
+  }
+}
+
+// ---- per-tab state reset (new upload must not keep anything from the previous document) ----
+function rawSetView(p){
+  const t=document.getElementById(p+'rawText'),bar=document.getElementById(p+'rawBar'),ed=document.getElementById(p+'rawEditor'),eb=document.getElementById(p+'rawEditBar');
+  if(t){t.hidden=false;t.contentEditable='false';t.classList.remove('editing')}if(bar)bar.hidden=false;if(ed)ed.hidden=true;if(eb)eb.hidden=true;
+}
+function clearExtracted(p){
+  ['title','subtitle','aud','goal','obj','disc','supp','partner','plogo','teaser','rdate','gap','primary','secondary'].filter(id=>!(p==='co_'&&id==='rdate')).forEach(id=>{const el=document.getElementById(p+id);if(el)el.value=''});
+  if(p==='co_'){coState.los=[];coState.qs=[];coState.extras=[]}
+  const peer=document.getElementById(p+'peer');if(peer)peer.checked=false;
+  document.querySelectorAll('#'+p+'creditChips input').forEach(c=>c.checked=false);
+  if(p==='sm_')renderCreditInputsSocial();else if(p==='ee_')renderCreditInputsEvent();else if(p==='co_')renderCreditInputsCore();else renderCreditInputs();
+  ptLogos[p]=[];renderLogoPreview(p);
+}
+function resetExtracted(p){
+  clearExtracted(p);
+  uploadedFlag[p]=false;
+  rawMode[p]='plain';lastZip[p]=null;editSnap[p]='';
+  const t=document.getElementById(p+'rawText');if(t){t.innerHTML='';t.contentEditable='false';t.classList.remove('editing')}
+  const bar=document.getElementById(p+'rawBar');if(bar)bar.hidden=true;
+  const eb=document.getElementById(p+'rawEditBar');if(eb)eb.hidden=true;
+  const ed=document.getElementById(p+'rawEditor');if(ed)ed.hidden=true;
+  const note=document.getElementById(p+'rawEditedNote');if(note){note.textContent='';note.style.display='none'}
+  const wrap=document.getElementById(p+'rawWrap');if(wrap)wrap.hidden=true;
+  const out=document.getElementById(p+'out');if(out)out.innerHTML='';
+  const res=document.getElementById(p+'resPanel');if(res)res.hidden=true;
+  const genMsg=document.getElementById(p+'genMsg');if(genMsg)genMsg.textContent='';
+  const upMsg=document.getElementById(p+'upMsg');if(upMsg)upMsg.textContent='';
+  const mand=document.getElementById(p+'mandatory');if(mand){mand.hidden=true;mand.innerHTML=''}
+  if(p==='co_'){['qaid','pid'].forEach(id=>{const el=document.getElementById('co_'+id);if(el)el.value=''});coSetToday()}
+}
+
+// ---- questionnaire quick setup ----
+const QAID_ADMIN_URL='https://prof.webmdtools.com/questionnaireadmin';
+const Q11_ANSWERS='Strongly Agree / Agree / No Opinion / Disagree / Strongly Disagree';
+const Q11_LO_NOTE='Please format the Learning Objectives according to the instructions provided in the \'How to Create the QAID\' section before adding them to the questionnaire. Use the Learning Objective content extracted from the Production Ticket and preserve its original wording.';
+const Q11_MATRIX_TEXT='This activity supported achievement of each of the learning objectives. [Please use the "additional comments" field below to provide further information.]';
+const Q16_TEXT='Please rate the level of innovation that you feel was included in this live event, with 1 being no innovation at all and 5 being extremely innovative.';
+const Q16_ANSWERS='1 - No Innovation / 2 - Not very innovative / 3 - Innovative / 4 - Very Innovative / 5 - Extremely Innovative';
+const Q12_EBAC_TEXT='This activity has been scientifically rigorous and evidence-based.';
+const Q12_EBAC_ANSWERS='Yes / In Part / No';
+const Q13_EBAC_TEXT='I have identified bias in this activity. [If yes, please use the comments field below to describe.]';
+const Q13_EBAC_ANSWERS='No, I did not detect bias. / Yes, I detected bias.';
+const COPY_ICON='<svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 3H4A1.5 1.5 0 0 0 2.5 4.5V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+const copyBtn=(t,label)=>'<button class="mini" data-copytext="'+escAttr(t)+'">'+COPY_ICON+(label||'Copy')+'</button>';
+function qaidQuickBlock(num,title,qtype,text,answers,note){
+  return '<div class="qa-q"><strong>Question '+num+' — '+title+'</strong></div>'
+    +'<div class="qa-qtext"><span><strong>'+esc(text)+'</strong></span>'+copyBtn(text)+'</div>'
+    +'<div class="qa-meta">Question type: '+qtype+'<br>Answers: '+esc(answers)+' '+copyBtn(answers.split(' / ').join('\n'),'Copy answers')+(note?'<br>'+note:'')+'</div>';
+}
+function qaidQuickSection(pageName,objRaw,ebac){
+  const lo=(objRaw||'').trim();
+  let h=sec('Questionnaire quick setup — '+pageName);
+  h+='<div class="qa-admin">Open the questionnaire tool: <a href="'+QAID_ADMIN_URL+'" target="_blank" rel="noopener">'+QAID_ADMIN_URL+'</a></div>';
+  h+='<div class="qa-note">The full start-to-finish process is in "How to create the QAID" above. This section covers only the questions that change by page type and credit type.</div>';
+  h+='<div class="qa-q"><strong>Question 11 — Learning objectives feedback</strong></div>';
+  h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><strong>'+esc(Q11_MATRIX_TEXT)+'</strong></span>'+copyBtn(Q11_MATRIX_TEXT)+'</div>';
+  h+='<div class="qa-note">'+esc(Q11_LO_NOTE)+'</div>';
+  if(lo){
+    h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><strong>'+esc(lo)+'</strong></span>'+copyBtn(lo)+'</div>';
+  }else{
+    h+='<div class="qa-note">No Learning Objectives available yet — upload the Production Ticket or paste them into the Learning Objectives field above, then generate again. Question 11 must use that exact content.</div>';
+  }
+  h+='<div class="qa-meta">Question type: Matrix / Radio button question &middot; Answers: '+esc(Q11_ANSWERS)+' '+copyBtn(Q11_ANSWERS.split(' / ').join('\n'),'Copy answers')+'</div>';
+  h+='<div class="qa-meta">Required for all five page types (Certificate Page, Social Media Certificate Page, Event Entry Page, Core Program, Program Production). Question 11 uses the exact Learning Objective content shown above. Delete the existing question 11 first, then move this one into the #11 spot.</div>';
+  if(ebac){
+    h+=qaidQuickBlock(12,'Scientific rigor (EBAC)','Basic / Radio button question',Q12_EBAC_TEXT,Q12_EBAC_ANSWERS,'Required for EBAC on all five page types. Delete the existing question 12 first, then move this one into the #12 spot.');
+    h+=qaidQuickBlock(13,'Bias identification (EBAC)','Basic / Radio button question',Q13_EBAC_TEXT,Q13_EBAC_ANSWERS,'Required for EBAC on all five page types. Move this one into the #13 spot.');
+    h+='<div class="qa-note">EBAC: keep all other questions in their usual order — the innovation question (#16) is not used.</div>';
+  }else{
+    h+=qaidQuickBlock(16,'Innovation','Basic / Radio button question',Q16_TEXT,Q16_ANSWERS,'Only for Certificate Page, Social Media Certificate Page, and Event Entry Page — not used for Core Program, Program Production, or EBAC.');
+  }
+  return h;
+}
+
+// ---- docx table-aware extraction ----
+const W='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+const kids=n=>Array.from(n.childNodes).filter(c=>c.nodeType===1);
+const runTxt=r=>kids(r).map(c=>c.localName==='t'?c.textContent:c.localName==='tab'?'\t':/^(br|cr)$/.test(c.localName)?'\n':'').join('');
+const parseXml=x=>new DOMParser().parseFromString(x,'application/xml');
+function cellText(tc){return Array.from(tc.getElementsByTagNameNS(W,'p')).map(p=>Array.from(p.getElementsByTagNameNS(W,'r')).map(runTxt).join('')).join('\n').trim()}
+function allRows(dom){
+  const rows=[];
+  Array.from(dom.getElementsByTagNameNS(W,'tr')).forEach(tr=>{
+    const cells=kids(tr).filter(c=>c.localName==='tc').map(cellText);
+    rows.push(cells);
+  });
+  return rows;
+}
+function fullText(dom){return Array.from(dom.getElementsByTagNameNS(W,'p')).map(p=>Array.from(p.getElementsByTagNameNS(W,'r')).map(runTxt).join('')).join('\n')}
+function findValueNode(dom,labelRe){
+  const trs=dom.getElementsByTagNameNS(W,'tr');
+  for(const tr of Array.from(trs)){
+    const tcs=kids(tr).filter(c=>c.localName==='tc');
+    if(tcs.length && labelRe.test(cellText(tcs[0]))) return tcs[1]||null;
+  }
+  return null;
+}
+function firstColumnLines(tc){
+  if(!tc) return '';
+  const nested=tc.getElementsByTagNameNS(W,'tbl')[0];
+  if(!nested) return cellText(tc);
+  const lines=[];
+  Array.from(nested.getElementsByTagNameNS(W,'tr')).forEach(tr=>{
+    const tcs=kids(tr).filter(c=>c.localName==='tc');
+    if(!tcs.length) return;
+    const first=cellText(tcs[0]);
+    if(first) lines.push(first);
+  });
+  return lines.join('\n');
+}
+function findValue(rows,labelRe){
+  for(const r of rows){
+    if(r[0] && labelRe.test(r[0])) return (r[1]||'').trim();
+  }
+  return '';
+}
+async function extractPT(dom,zip,skipPreview){
+  const rows=allRows(dom);
+  const text=fullText(dom);
+  $('title').value=findValue(rows,/^\s*Title\s*:?/i);
+  $('subtitle').value=findValue(rows,/^\s*Subtitle\s*:?/i);
+  $('aud').value=findValue(rows,/^\s*Live\s*Target\s*Audience/i).replace(/<<[^>]*>>/g,'').trim();
+  $('goal').value=findValue(rows,/^\s*Goal\s*Statement/i);
+  $('obj').value=firstColumnLines(findValueNode(dom,/^\s*Learning\s*Objectives/i))
+    .split('\n').filter(l=>!/^\s*Slide\s*#?\s*$/i.test(l) && !/^\s*\d+\s*(-|–|to)\s*\d+\s*$/i.test(l))
+    .join('\n').replace(/\bSlide\s*#/gi,'').replace(/\n{2,}/g,'\n').trim();
+  $('disc').value=findValue(rows,/^\s*Association\s*Disclaimer\s*Statement/i);
+  $('supp').value=findValue(rows,/^\s*Supporter\s*Statement/i);
+  $('partner').value=findValue(rows,/^\s*Partner\s*Statement/i);
+  $('plogo').value=findValue(rows,/^\s*Partner\s*Logo/i);
+  $('teaser').value=findValue(rows,/^\s*Rapid\s*Activity\s*Overview/i);
+  ptLogos['']=await extractCellImages(findLogoRow(dom,/^\s*Partner\s*Logo/i),zip);
+  renderLogoPreview('');
+
+  const dateBlock=findValue(rows,/^\s*Page\s*Display\s*Date\s*and\s*Time/i);
+  const dm=dateBlock.match(/Date:\s*([A-Za-z]+,\s*[A-Za-z]+\s+\d{1,2},\s*\d{4})/i)||dateBlock.match(/([A-Za-z]+\s+\d{1,2},\s*\d{4})/);
+  if(dm){const d=new Date(dm[1]);if(!isNaN(d))$('rdate').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+  const creditAvail=findValue(rows,/^\s*Credit\s*Available/i);
+  const cme=creditAvail.match(/maximum of\s*([\d.]+)/i);
+  if(cme){const el=document.getElementById('cmeHrs');if(el)el.value=cme[1]}
+  const cne=creditAvail.match(/Awarded\s*([\d.]+)\s*contact hour/i);
+  if(cne){const el=document.getElementById('cneHrs');if(el)el.value=cne[1]}
+  const pharm=creditAvail.match(/([\d.]+)\s*contact hours?\s*(?:are\s+|is\s+)?in\s+(?:the\s+area\s+of\s+)?pharmac\w*/i)
+    ||creditAvail.match(/([\d.]+)\s*pharmac\w*\s+contact hours?/i);
+  if(pharm){const el=document.getElementById('cnePharm');if(el)el.value=pharm[1]}
+  const cpe=creditAvail.match(/for\s*([\d.]+)\s*contact hour\(?s?\)?\s*\(([\d.]+)\s*CEUs?\)\s*\(Universal Activity Number:?\s*([A-Z0-9\-]+)\)/i);
+  if(cpe){const h=document.getElementById('cpeHrs');if(h)h.value=cpe[1];const u=document.getElementById('cpeUAN');if(u)u.value=cpe[3]}
+  const ebacMin=creditAvail.match(/Total effective education time:?\s*([\d.]+)\s*minutes/i);
+  if(ebacMin){const el=document.getElementById('ebacMin');if(el)el.value=ebacMin[1]}
+  const ebacID=creditAvail.match(/EBAC Activity ID\s*#?\s*([\w\-]+)/i);
+  if(ebacID){const el=document.getElementById('ebacID');if(el)el.value=ebacID[1]}
+
+  const found=[];
+  if(/☒\s*Peer\s*Reviewer/i.test(text))$('peer').checked=true;
+  const ipceM=creditAvail.match(/([\d.]+)\s*Interprofessional Continuing Education/i);
+  ['CME','CNE','CPE','IPCE','AAPA','EBAC','EACCME','IME','CPD'].forEach(k=>{
+    const re=new RegExp('☒\\s*'+k,'i');
+    if(re.test(text)){found.push(k);const cb=document.querySelector('#creditChips input[value="'+k+'"]');if(cb){cb.checked=true}}
+  });
+  renderCreditInputs();
+  // re-run number fills now that the right sub-inputs exist
+  if(cme){const el=document.getElementById('cmeHrs');if(el)el.value=cme[1]}
+  if(cne){const el=document.getElementById('cneHrs');if(el)el.value=cne[1]}
+  if(pharm){const el=document.getElementById('cnePharm');if(el)el.value=pharm[1]}
+  if(cpe){const h=document.getElementById('cpeHrs');if(h)h.value=cpe[1];const u=document.getElementById('cpeUAN');if(u)u.value=cpe[3]}
+  if(ebacMin){const el=document.getElementById('ebacMin');if(el)el.value=ebacMin[1]}
+  if(ebacID){const el=document.getElementById('ebacID');if(el)el.value=ebacID[1]}
+  if(ipceM){const el=document.getElementById('ipceHrs');if(el)el.value=ipceM[1]}
+
+  if(!skipPreview){
+    rawMode['']='rich';lastZip['']=zip;
+    const ridMap=await buildRidMap(zip);
+    $('rawText').innerHTML=renderDocPreview(dom,ridMap);
+    $('rawWrap').hidden=false;rawSetView('');
+  }
+  $('upMsg').textContent='Pulled what it could find from the ticket\'s tables. Check every field below — Project ID is never in the PT, so it always needs a manual entry.'+(found.length?' Detected checked credit types: '+found.join(', ')+'.':' No checked (☒) credit types were detected — tick them yourself.');
+  uploadedFlag['']=true;renderMandatory('',checkedCredits);
+}
+$('file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  resetExtracted('');
+  try{
+    if(/\.docx$/i.test(f.name)){
+      const zip=await JSZip.loadAsync(await f.arrayBuffer());
+      const xml=await zip.file('word/document.xml').async('string');
+      await extractPT(parseXml(xml),zip);
+    }else{
+      const text=await f.text();
+      rawMode['']='plain';lastZip['']=null;
+      $('rawText').textContent=text;$('rawWrap').hidden=false;rawSetView('');
+      $('upMsg').textContent='.txt files skip table parsing — paste field values in manually, or upload the .docx instead.';
+    }
+  }catch(err){$('upMsg').textContent='Could not read that file — paste the details in by hand below.'}
+  e.target.value='';
+};
+
+// ---- credit sub-fields ----
+const chipInputs=document.querySelectorAll('#creditChips input');
+chipInputs.forEach(c=>c.addEventListener('change',renderCreditInputs));
+function checkedCredits(){return Array.from(chipInputs).filter(c=>c.checked).map(c=>c.value)}
+function renderCreditInputs(){
+  const t=checkedCredits();let h='';
+  const keep={};document.querySelectorAll('#creditInputs input').forEach(i=>keep[i.id]=i.value);
+  if(t.includes('CME'))h+='<div class="row"><div><label for="cmeHrs">CME max credits (For Physicians)</label><input type="number" step="0.25" id="cmeHrs"></div></div>';
+  if(t.includes('CNE'))h+='<div class="row"><div><label for="cneHrs">CNE max credits (For Nurses)</label><input type="number" step="0.25" id="cneHrs"></div><div><label for="cnePharm">Pharmacology hours <span class="opt">(auto-filled from the PT when provided)</span></label><input type="number" step="0.25" id="cnePharm"></div></div>';
+  if(t.includes('CPE'))h+='<div class="row"><div><label for="cpeHrs">CPE max credits (For Pharmacists)</label><input type="number" step="0.25" id="cpeHrs"></div><div><label for="cpeUAN">Universal Activity Number</label><input type="text" id="cpeUAN" placeholder="JA0007105-0000-26-179-L01-P"></div></div>';
+  if(t.includes('EBAC'))h+='<div class="row"><div><label for="ebacMin">Total effective education time (minutes)</label><input type="number" id="ebacMin"></div><div><label for="ebacID">EBAC Activity ID #</label><input type="text" id="ebacID" placeholder="2026-WB-4592000-000"></div></div>';
+  if(t.includes('IPCE'))h+='<div class="row"><div><label for="ipceHrs">IPCE credits <span class="opt">(blank = uses the CME credits)</span></label><input type="number" step="0.25" id="ipceHrs"></div></div>';
+  $('creditInputs').innerHTML=h;
+  Object.keys(keep).forEach(id=>{const el=document.getElementById(id);if(el)el.value=keep[id]});
+  renderMandatory('',checkedCredits);
+}
+
+// ---- boilerplate & generate ----
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const cleanPartner=s=>/click or tap here to enter text/i.test(s||'')?'':(s||'').trim();
+const toLines=s=>(s||'').split('\n').join('<br>\n    ');
+const P=t=>'<p>\n    '+t+'\n</p>';
+const CAP='\n    <figcaption data-placeholder="Enter image Caption">\n        &nbsp;\n    </figcaption>';
+const BASE='https://img.medscapestatic.com';
+function fig(cls,path,alt,h,w,desc,id,title,credit,source,cap){
+  const u=BASE+path;
+  return '<figure class="'+cls+'" contenteditable="false">\n    <img class="ck-editor__editable ck-editor__nested-editable" src="'+u+'" alt="'+alt+'" height="'+h+'" width="'+w+'" data-asset-description="'+desc+'" data-asset-id="'+id+'" data-asset-title="'+title+'" data-creditline="'+credit+'" data-source="'+source+'" data-keywords="" data-path="'+path+'" data-asset-url="'+u+'" data-height="'+h+'" data-width="'+w+'" role="textbox" tabindex="-1" contenteditable="true">'+(cap?CAP:'')+'\n</figure>';
+}
+const VA='vim-asset ck-widget aspen-align-middle';
+const F_MED=fig(VA,'/vim/live/professional_assets/medscape-150x34.png','Medscape',34,150,'medscape-150x34.png','210cef77-f33b-43db-b764-f6b95bc9a939','medscape-150x34.png','Medscape','Medscape');
+const F_COM=fig(VA,'/vim/live/professional_assets/medscape/images/provider/interprofessional-ce-commendation.png','Interprofessional Continuing Education',132,150,'Interprofessional Continuing Education Logo','2fbcaf14-a0ae-4af9-ac20-f6a202e1ae49','interprofessional-continuing-education.png','Medscape','');
+const F_IPCE=fig(VA,'/vim/live/professional_assets/medscape/images/IPCE-credit.jpg','',120,172,'IPCE','f0fa1fc1-a5e7-4015-9f9f-5aba7ba45e73','IPCE-credit.jpg','Medscape, LLC','Medscape');
+const F_MEI=fig('ck-widget','/vim/live/professional_assets/medscape/images/medscape-education-international_mei_logo-color.png','photo of Medscape Education International (MEI) logo','',300,'Medscape Education International (MEI)','a0184906-3959-4f7d-b2e3-8d3b3120ef2b','medscape-education-international_mei_logo-color.png','Medscape Education International AG','Medscape',true);
+const F_EBAC=fig('ck-widget','/vim/live/professional_assets/medscape/images/EBAC_Logo_2024.png','EBAC','',100,'EBAC_Logo_2024','5947a0ab-a205-4efb-a17b-ac848d576a61','EBAC_Logo_2024.png','Mescape, LLC','Medscape',true);
+
+const ACCRED='In support of improving patient care, Medscape, LLC is jointly accredited with commendation by the Accreditation Council for Continuing Medical Education (ACCME), the Accreditation Council for Pharmacy Education (ACPE), and the American Nurses Credentialing Center (ANCC), to provide continuing education for the healthcare team.';
+const DISC_STD=P('Medscape, LLC requires every individual in a position to control educational content to disclose all financial relationships with ineligible companies that have occurred within the past 24 months. Ineligible companies are organizations whose primary business is producing, marketing, selling, re-selling, or distributing healthcare products used by or on patients.')+'\n'+P('All relevant financial relationships for anyone with the ability to control the content of this educational activity are listed below and have been mitigated. Others involved in the planning of this activity have no relevant financial relationships.');
+const DISC_EBAC=P('Medscape Education International AG requires all presenters/authors/chairpersons/moderators/course directors to declare their financial as well as non-financial interests for the last 3 years and the subsequent 12 months. All relationships declared for this educational activity have been mitigated in accordance with EBAC standards.');
+const li=(id,t,lvl)=>'    <li'+(lvl?' aria-level="1"':'')+' data-list-item-id="'+id+'">\n        '+t+'\n    </li>';
+const TRACKER='You may now view or print the certificate from your CME/CE Tracker. You may print the certificate, but you cannot alter it. Credits will be tallied in your CME/CE Tracker and archived for 6 years; at any point within this time period, you can print out the tally as well as the certificates from the CME/CE Tracker.';
+const INSTR_STD=[P('There are no fees for participating in or receiving credit for this online educational activity. For information on applicability and acceptance of continuing education credit for this activity, please consult your professional licensing board.'),
+P('This activity is designed to be completed within the time designated on the title page; physicians should claim only those credits that reflect the time actually spent in the activity. To successfully earn credit, participants must complete the activity online during the valid credit period that is noted on the title page. To receive <em>AMA PRA Category 1 Credit</em>™, you must receive a minimum score of 75% on the post-test.'),
+P('Follow these steps to earn CME/CE credit*:'),
+'<ol>\n'+[li('ea5d83a346395a19fb1086380eeda9ab5','Read about the target audience, learning objectives, and author disclosures.',1),li('e1f5be5ecc6000525542e325efe3b5985','Study the educational content online or print it out.',1),li('e011fd620c703bdb59cbeb0e4132aeb0c','Online, choose the best answer to each test question. To receive a certificate, you must receive a passing score as designated at the top of the test. We encourage you to complete the Activity Evaluation to provide feedback for future programming.',1)].join('\n')+'\n</ol>',
+P(TRACKER),P('*The credit that you receive is based on your user profile.')].join('\n');
+const INSTR_EBAC=[P('There are no fees for participating in or receiving credit for this online educational activity. For information about your eligibility to claim credit, please consult your professional licensing board.'),
+P('This activity is designed to be completed within the time designated on the title page; physicians should claim only those credits that reflect the time actually spent participating in the activity. To successfully earn credit, participants must complete the activity online during the credit eligibility period that is noted on the title page.&nbsp;<em>&nbsp;</em>'),
+P('Follow these steps to claim a credit certificate for completing this activity:'),
+'<ol>\n'+[li('e3590009255be47a05c256093ce80c113','Read the information provided on the title page regarding the target audience, learning objectives, and author disclosures, read and study the activity content and then complete the post-test questions. If you earn a passing score on the post-test and we have determined based on your registration profile that you may be eligible to claim EBAC credit for completing this activity, we will issue you an EBAC credit certificate.'),li('edc7dd82e294dd0e0f64bb2b52d1e4cd9','Once your EBAC credit certificate has been issued, you may view and print the certificate from your CME/CE Tracker. EBAC credits will be tallied in your CME/CE Tracker and archived for 6 years; at any point within this time period you can print out the tally as well as the certificates by accessing "Edit Your Profile" at the top of the Medscape Education homepage.')].join('\n')+'\n</ol>',
+P('We encourage you to complete an Activity Evaluation to provide feedback for future programming.'),P(TRACKER),P('*The credit that you receive is based on your user profile.')].join('\n');
+const disclaimer=ebac=>[P('<strong>Disclaimer</strong>'),P('Content is current as of the date this activity was released.'),
+P('The educational activity presented above may involve simulated, case-based scenarios. The patients depicted in these scenarios are fictitious and no association with any actual patient, whether living or deceased, is intended or should be inferred.'),
+P('The material presented here does not necessarily reflect the views of '+(ebac?'Medscape Education International AG':'Medscape, LLC')+', or any individuals or commercial entities that support companies that support educational programming on medscape.org. These materials may include discussion of therapeutic products that have not been approved by the '+(ebac?'European Medicines Agency for use in Europe':'US Food and Drug Administration')+', off-label uses of approved products, or data that were presented in abstract form. These data should be considered preliminary until published in a peer-reviewed journal. Readers should verify all information and data before treating patients or employing any therapies described in this or any educational activity. A qualified healthcare professional should be consulted before using any therapeutic product discussed herein.'+(ebac?'&nbsp;':'')),
+P('Developed with AI assistance.')].join('\n');
+const QAID_STEPS='1. Go to https://prof.webmdtools.com/questionnaireadmin and click "Add New Questionnaire."\n2. Enter the program title into "Add New / Edit Existing Questionnaire Title."\n3. Set "Select Questionnaire Type" to "CME Questionnaire," leave "Questionnaire Is Gated" checked, and click Save.\n4. Click delete next to question 11 ("This activity supported achievement of each of the learning objectives...").\n5. Set "Add new question type" to Matrix, "Add new question" to Radio button question, and click add.\n6. In Question, enter: This activity supported achievement of each of the learning objectives. [Please use the "additional comments" field below to provide further information.]\n7. Find the Learning Objectives in the Production Ticket. For each LO, combine the intro stem ("Have increased knowledge regarding the...") with its bullet ending into one Sub-Question box, drop the word "Have," fix the resulting capital letter, and lowercase any capital letter that now falls mid-sentence.\n8. In Answers, add: Strongly Agree / Agree / No Opinion / Disagree / Strongly Disagree. Click Save, then use ↑ to move this question up into the #11 spot.\n9. Set "Add new question type" to Basic, "Add new question" to Radio button question, and click add.\n10. In Question, enter: Please rate the level of innovation that you feel was included in this live event, with 1 being no innovation at all and 5 being extremely innovative.\n11. In Answers, add: 1 - No Innovation / 2 - Not very innovative / 3 - Innovative / 4 - Very Innovative / 5 - Extremely Innovative. Click Save, then move it into the #16 spot on the form.\n12. Note the QAID shown for this questionnaire and save it — that\'s the ID to enter above.';
+const STEPS='1. Group by the PT\'s speaker labels (Chair, Faculty...) as the Aspen Group Label; no label → Faculty.\n2. Search Aspen\'s contributor database by last name. Found → Add, then check the Professional Title against the PT.\n3. Not found → "Add New Contributor," enter name + degree, paste the Professional Title.\n4. Copy each contributor\'s financial-relationship text into Disclosures. None → "[Name, degrees], has no relevant financial relationships."\n5. Content Developer (MED/Editor) is its own "Editor" group, same process.\n6. Compliance Reviewer: add the group only — don\'t select the person yet (that\'s in Staging Edits).\n7. Click "Generate Byline," confirm only Chair + Faculty are checked.';
+
+function fmt(d){return d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
+function row(k,v,code,copy,empty){const raw=v==null?'':String(v);
+  const copyRaw=copy==null?'':(typeof copy==='string'?copy:raw);
+  return '<div class="field"><div class="k">'+k+'</div><div class="v'+(code&&raw?' code':'')+'" data-raw="'+esc(raw).replace(/"/g,'&quot;')+'">'+(raw?esc(raw):esc(empty||'—'))+'</div>'+(code&&raw?'<button class="mini" data-copy>Copy HTML</button>':'')+(copyRaw?'<button class="mini" data-copytext="'+escAttr(copyRaw)+'">Copy</button>':'')+'</div>'}
+const flag=t=>'<div class="flag">'+t+'</div>';
+const sec=t=>'<h4 class="sec">'+t+'</h4>';
+const block=(t,inner)=>'<div class="credit-block"><h4>'+t+'</h4>'+inner+'</div>';
+
+$('gen').onclick=()=>{
+  const g=id=>$(id)?$(id).value.trim():'';
+  const num=id=>{const v=parseFloat(g(id));return isNaN(v)?null:v};
+  const title=g('title'),subtitle=g('subtitle'),pid=g('pid'),aud=g('aud'),goal=g('goal'),obj=g('obj');
+  const disc=g('disc'),supp=g('supp'),partner=cleanPartner(g('partner')),logo=g('plogo'),qaid=g('qaid'),teaser=g('teaser');
+  const t=checkedCredits(),has=k=>t.includes(k);
+  const us=['CME','CNE','CPE'].some(has),ebac=has('EBAC')&&!us,ipce=has('IPCE');
+  const ipceH=num('ipceHrs')!==null?num('ipceHrs'):num('cmeHrs');
+  const missing=[];
+  if(!title)missing.push('Title');if(!subtitle)missing.push('Subtitle');if(!pid)missing.push('Project ID');
+  if(!aud)missing.push('Target Audience');if(!goal)missing.push('Goal Statement');if(!obj)missing.push('Learning Objectives');
+  if(!t.length)missing.push('At least one credit type');if(!qaid)missing.push('Questionnaire ID');
+  if(!$('rdate').value)missing.push('Event date');
+  const rel=$('rdate').value?new Date($('rdate').value+'T00:00:00'):null;
+  let o='';
+  o+=sec('Settings');
+  o+=row('Title',title&&subtitle?title+': '+subtitle:title||subtitle,null,true);
+  o+=row('Team','EDU');
+  o+=sec('Content');
+  o+=row('Project ID',pid);
+  o+=row('Content Type','Roundtable');
+  o+=row('Product Name','Certificate Page');
+  o+=row('Learning Format','Live Activity');
+  o+=row('Content Developer','Medscape');
+  if(rel){const e=new Date(rel);e.setDate(e.getDate()+28);
+    o+=row('Activity Release Date',fmt(rel))+row('Activity Renew Date',fmt(rel))+row('Activity Expiration Date',fmt(e)+' (release + 4 weeks)');
+  }else o+=row('Activity Release / Renew / Expiration Date','Enter the event date above');
+  o+=row('Formatted Teaser',teaser,null,true,'(blank on PT)');
+  o+=row('Primary Competency','Medical Knowledge');
+  o+=row('Supporters',supp?'Pick the matching name from Aspen\'s list (from: "'+supp+'")':'(blank on PT)',null,supp);
+  o+=row('Grant Attribution',supp,null,true);
+  const certLogos=ptLogos['']||[];
+  if(certLogos.length){
+    o+='<div class="field"><div class="k">↳ Partner Logo and Badge (insert below Grant Attribution)</div><div class="v" data-raw="[Partner logo image extracted from the Production Ticket — insert it directly below the Grant Attribution statement]">'+certLogos.map(i=>'<img class="imgthumb" src="'+i.dataUrl+'" alt="'+escAttr(i.name)+'">').join('')+'</div></div>';
+  }else if(logo)o+=row('↳ Partner Logo and Badge (add below Grant Attribution)',logo);
+  o+=row('Partners',partner?'Pick the matching name from Aspen\'s list (from: "'+partner+'")':'(blank on PT)');
+  o+=row('Copyright Holder',ebac?'Medscape Education International AG':'Medscape, LLC',null,true);
+  o+=row('Copyright Statement','Medscape Education © '+(rel?rel.getFullYear():new Date().getFullYear()),null,true);
+  o+=row('Provider Disclosure(s)',(disc?P(esc(disc))+'\n':'')+(ebac?DISC_EBAC:DISC_STD),true);
+  o+=row('Additional Disclosure(s)',$('peer').checked?'<h2>\n    Peer Reviewer\n</h2>\n\n<p>\n    This activity has been peer reviewed and the reviewer '+(ebac?'has disclosed no':'has no')+' relevant financial relationships. \n</p>':'(leave blank — Peer Reviewer box not checked)',$('peer').checked);
+  o+=row('Target Audience',aud.replace(/<<[^>]*>>/g,'').trim(),null,true);
+  o+=row('Goal',goal,null,true);
+  o+=row('Clinical Gap Statement','',null,true,'(always blank)');
+  o+=row('Learning Objective',obj.split('\n').filter(l=>!/^\s*Slide\s*#?\s*$/i.test(l)).join('\n').replace(/\bSlide\s*#/gi,'').replace(/\n{2,}/g,'\n').trim(),null,true);
+  let misc='';
+  if(partner)misc+=P(esc(partner))+'\n';
+  if(ebac)misc+=P('Medscape Education International AG is an EBAC® accredited provider since 2025.')+'\n'+F_MEI+'\n'+F_EBAC;
+  else if(us){misc+=F_MED+'\n'+F_COM+'\n'+P(ACCRED);
+    if(ipce)misc+='\n'+F_IPCE+'\n'+P('This activity was planned by and for the healthcare team, and learners will receive '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit for learning and change.');}
+  o+=row('Misc Provider Statement',misc,true);
+  if(has('EBAC')&&us)o+=flag('EBAC is checked together with CME/CNE/CPE — unusual; the US version was used, please check.');
+  if(!us&&!ebac)o+=flag('No CME/CNE/CPE/EBAC credit found, so Misc Provider Statement, Instructions and Disclaimer are blank.');
+  if(us&&has('CME')&&has('CNE')&&has('CPE')&&!ipce)o+=flag('CME + CNE + CPE are all checked but IPCE is not. IPCE was left out as instructed — in the earlier CME/CNE/CPE example Aspen did include IPCE text, so double-check.');
+  if(ipce&&ipceH===null)o+=flag('IPCE is marked — enter the IPCE credits.');
+  o+=row('Additional Credits Available Text',ipce?'<p>\n    <strong>IPCE</strong><br>\n    '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit(s)\n</p>':'(leave blank — IPCE not marked)',ipce);
+  o+=row('Instructions for Credit',ebac?INSTR_EBAC:(us||ipce?INSTR_STD:''),true);
+  o+=row('Disclaimer',ebac?disclaimer(true):(us||ipce?disclaimer(false):''),true);
+  o+=sec('Contributors & byline')+'<details><summary>Manual steps</summary><div class="inside">'+esc(STEPS)+'</div></details>';
+  o+=sec('Eligibilities');
+  if(has('CME')){const h=num('cmeHrs');
+    o+=block('CME',row('Primary Provider','MedscapeLIVE')+row('Primary Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null)+(h===null?flag('Enter CME hours.'):''));
+    o+=block('Paired LOC entry (from CME)',row('Credit Type','LOC')+row('Provider','MedscapeLIVE')+row('Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null));}
+  if(has('CNE')){const h=num('cneHrs'),p=num('cnePharm');
+    o+=block('Nurse CE (CNE)',row('Credit Type dropdown','Search "Medscape" → MedscapeLIVE')+row('Primary Accreditor','American Nurses Credentialing Center (ANCC)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Pharmacology Hours',p!==null?p.toFixed(2):null)+(h===null?flag('Enter CNE hours.'):'')+(p===null?flag('Pharmacology hours aren\'t in the PT — confirm with compliance rather than assuming 0.'):''));}
+  if(has('CPE')){const h=num('cpeHrs'),u=g('cpeUAN');
+    o+=block('CPE (Pharmacist CE)',row('Credit Type dropdown','Pharmacist CE')+row('Primary Provider','MedscapeLIVE - Pharma')+row('Primary Accreditor','Accreditation Council for Pharmacy Education -- Knowledge-based (ACPE-KNO)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Credit Allocation (CEUs)',h!==null?(h/10).toFixed(3):null)+row('External ID',u,null,true)+(h===null?flag('Enter CPE hours.'):'')+(!u?flag('Enter the Universal Activity Number.'):''));}
+  if(has('EBAC')){const m=num('ebacMin'),id=g('ebacID'),hr=m!==null?m/60:null;
+    o+=block('EBAC (entered as Credit Type "CME")',row('Credit Type dropdown','CME')+row('Primary Provider','Medscape Education International (MEI) EBAC')+row('Primary Accreditor','European Board for Accreditation in Cardiology (EBAC)')+row('Max Credits',hr!==null?hr.toFixed(2):null)+row('External ID',id||null)+(m===null?flag('Enter total effective education time (minutes).'):'')+(!id?flag('Enter the EBAC Activity ID #.'):''));
+    o+=block('Paired LOC entry (from EBAC)',row('Credit Type','LOC')+row('Provider','Medscape Education International (MEI) EBAC')+row('Accreditor','European Board for Accreditation in Cardiology (EBAC)')+row('Max Credits',hr!==null?hr.toFixed(2):null)+row('External ID',id||null));}
+  ['AAPA','EACCME','IME','CPD'].forEach(k=>{if(has(k))o+=block(k,flag('No confirmed Aspen steps yet for this credit type — set it up by hand, then send over an example.'))});
+  if(!t.length)o+='<div class="empty">Select one or more credit types above.</div>';
+  o+=block('Accreditation tab (defaults)',row('Include on CME Passport?','No')+row('Is this an IPCE Activity?','No (even when IPCE credit is present)')+row('Is Pharmacy Certificate Program?','No')+row('Register for MIPS?','No'));
+  o+=sec('Activity');
+  o+=row('Questionnaire ID',qaid||'(not entered yet — see steps below)');
+  o+='<details><summary>How to create the QAID</summary><div class="inside">'+esc(QAID_STEPS)+'</div></details>';
+  o+=qaidQuickSection('Certificate Page',obj,has('EBAC'));
+  o+=row('Exclude Navigation',$('exclnav').checked?'On':'Off');
+  o+=row('Sections → Section 1 body','This certificate page is associated with a Medscape Education event.',null,true);
+  o+=sec('Publishing');
+  o+=row('No Bots','Check')+row('Suppress Site Search','Check')+row('Gated','Check')+row('Include in external search','Uncheck')+row('Ad Display','Suppress All Ads');
+  o+=row('Geographic Permissions','Check Workfront → Geoblock. If anything is listed there, mark it here. If Geoblock is blank, do nothing.');
+  o+=row('Final step','Hit the Staging button — done');
+  $('out').innerHTML=o;
+  $('genMsg').textContent=missing.length?'Still missing: '+missing.join(', '):'All core fields filled in';
+  $('resPanel').hidden=false;
+  $('resPanel').scrollIntoView({behavior:'smooth'});
+};
+document.addEventListener('click',e=>{
+  const cx=e.target.closest('.docprev.editing .dpcbx');
+  if(cx){const on=cx.getAttribute('data-cb')!=='1';cx.setAttribute('data-cb',on?'1':'0');cx.textContent=on?'☒':'☐';cx.title=on?'Checked':'Unchecked';return}
+  const c=e.target.closest('[data-copytext]');
+  if(c){navigator.clipboard.writeText(c.dataset.copytext).then(()=>toast('Copied'),()=>toast('Copy blocked'));return}
+  const b=e.target.closest('[data-copy]');if(b){
+    navigator.clipboard.writeText(b.parentNode.querySelector('.v').dataset.raw).then(()=>toast('HTML copied'),()=>toast('Copy blocked'));return}
+  const re=e.target.closest('[data-rawedit]');
+  if(re){const p=re.dataset.rawedit;const t=document.getElementById(p+'rawText'),bar=document.getElementById(p+'rawBar'),eb=document.getElementById(p+'rawEditBar'),en=document.getElementById(p+'rawEditNote');
+    if(rawMode[p]==='rich'){
+      editSnap[p]=t.innerHTML;
+      t.contentEditable='true';t.classList.add('editing');
+      if(en)en.textContent='Edit the preview below — tables, rows, highlighting and images are kept wherever possible. Clicking Save regenerates the Aspen fields from the edited content.';
+    }else{
+      const ed=document.getElementById(p+'rawEditor'),ta=document.getElementById(p+'rawTa');
+      editSnap[p]=ta.value=t.textContent;
+      t.hidden=true;ed.hidden=false;ta.focus();
+      if(en)en.textContent='Edit the text below. Clicking Save regenerates the Aspen fields from the edited text.';
+    }
+    bar.hidden=true;eb.hidden=false;return}
+  const rs=e.target.closest('[data-rawsave]');
+  if(rs){const p=rs.dataset.rawsave;const t=document.getElementById(p+'rawText'),bar=document.getElementById(p+'rawBar'),eb=document.getElementById(p+'rawEditBar'),note=document.getElementById(p+'rawEditedNote');
+    if(rawMode[p]==='rich'){
+      t.contentEditable='false';t.classList.remove('editing');
+    }else{
+      const ed=document.getElementById(p+'rawEditor'),ta=document.getElementById(p+'rawTa');
+      t.textContent=ta.value;t.hidden=false;ed.hidden=true;
+    }
+    eb.hidden=true;bar.hidden=false;
+    if(note){note.textContent='Saved — the Aspen fields below have been regenerated from the edited '+(rawMode[p]==='rich'?'preview':'text')+'.';note.style.display=''}
+    clearExtracted(p);regenerateFromPreview(p);return}
+  const rc=e.target.closest('[data-rawcancel]');
+  if(rc){const p=rc.dataset.rawcancel;const t=document.getElementById(p+'rawText'),bar=document.getElementById(p+'rawBar'),eb=document.getElementById(p+'rawEditBar');
+    if(rawMode[p]==='rich'){
+      t.innerHTML=editSnap[p];t.contentEditable='false';t.classList.remove('editing');
+    }else{
+      const ed=document.getElementById(p+'rawEditor'),ta=document.getElementById(p+'rawTa');
+      ta.value=editSnap[p];ed.hidden=true;t.hidden=false;
+    }
+    eb.hidden=true;bar.hidden=false;return}
+});
+$('copy').onclick=async()=>{
+  const lines=Array.from(document.querySelectorAll('#out .field')).map(f=>{const v=f.querySelector('.v');return f.querySelector('.k').textContent+': '+(v.dataset.raw||'—')});
+  try{await navigator.clipboard.writeText(lines.join('\n'));toast('Copied')}catch(e){toast('Copy blocked')}
+};
+
+// ================= Social Media Certificate Page =================
+async function extractPTSocial(dom,zip,skipPreview){
+  const rows=allRows(dom);
+  const text=fullText(dom);
+  $('sm_title').value=findValue(rows,/^\s*Title\s*:?/i);
+  $('sm_subtitle').value=findValue(rows,/^\s*Subtitle\s*:?/i);
+  $('sm_aud').value=findValue(rows,/^\s*Live\s*Target\s*Audience/i).replace(/<<[^>]*>>/g,'').trim();
+  $('sm_goal').value=findValue(rows,/^\s*Goal\s*Statement/i);
+  $('sm_obj').value=firstColumnLines(findValueNode(dom,/^\s*Learning\s*Objectives/i))
+    .split('\n').filter(l=>!/^\s*Slide\s*#?\s*$/i.test(l) && !/^\s*\d+\s*(-|–|to)\s*\d+\s*$/i.test(l))
+    .join('\n').replace(/\bSlide\s*#/gi,'').replace(/\n{2,}/g,'\n').trim();
+  $('sm_disc').value=findValue(rows,/^\s*Association\s*Disclaimer\s*Statement/i);
+  $('sm_supp').value=findValue(rows,/^\s*Supporter\s*Statement/i);
+  $('sm_partner').value=findValue(rows,/^\s*Partner\s*Statement/i);
+  $('sm_plogo').value=findValue(rows,/^\s*Partner\s*Logo/i);
+  $('sm_teaser').value=findValue(rows,/^\s*Rapid\s*Activity\s*Overview/i);
+  ptLogos['sm_']=await extractCellImages(findLogoRow(dom,/^\s*Partner\s*Logo/i),zip);
+  renderLogoPreview('sm_');
+
+  const dateBlock=findValue(rows,/^\s*Page\s*Display\s*Date\s*and\s*Time/i);
+  const dm=dateBlock.match(/Date:\s*([A-Za-z]+,\s*[A-Za-z]+\s+\d{1,2},\s*\d{4})/i)||dateBlock.match(/([A-Za-z]+\s+\d{1,2},\s*\d{4})/);
+  if(dm){const d=new Date(dm[1]);if(!isNaN(d))$('sm_rdate').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+  const creditAvail=findValue(rows,/^\s*Credit\s*Available/i);
+  const cme=creditAvail.match(/maximum of\s*([\d.]+)/i);
+  const cne=creditAvail.match(/Awarded\s*([\d.]+)\s*contact hour/i);
+  const pharm=creditAvail.match(/([\d.]+)\s*contact hours?\s*(?:are\s+|is\s+)?in\s+(?:the\s+area\s+of\s+)?pharmac\w*/i)
+    ||creditAvail.match(/([\d.]+)\s*pharmac\w*\s+contact hours?/i);
+  const cpe=creditAvail.match(/for\s*([\d.]+)\s*contact hour\(?s?\)?\s*\(([\d.]+)\s*CEUs?\)\s*\(Universal Activity Number:?\s*([A-Z0-9\-]+)\)/i);
+  const ebacMin=creditAvail.match(/Total effective education time:?\s*([\d.]+)\s*minutes/i);
+  const ebacID=creditAvail.match(/EBAC Activity ID\s*#?\s*([\w\-]+)/i);
+  const ipceM=creditAvail.match(/([\d.]+)\s*Interprofessional Continuing Education/i);
+
+  const found=[];
+  if(/☒\s*Peer\s*Reviewer/i.test(text))$('sm_peer').checked=true;
+  ['CME','CNE','CPE','IPCE','AAPA','EBAC','EACCME','IME','CPD'].forEach(k=>{
+    const re=new RegExp('☒\\s*'+k,'i');
+    if(re.test(text)){found.push(k);const cb=document.querySelector('#sm_creditChips input[value="'+k+'"]');if(cb){cb.checked=true}}
+  });
+  renderCreditInputsSocial();
+  const set=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.value=v};
+  if(cme)set('sm_cmeHrs',cme[1]);
+  if(cne)set('sm_cneHrs',cne[1]);
+  if(pharm)set('sm_cnePharm',pharm[1]);
+  if(cpe){set('sm_cpeHrs',cpe[1]);set('sm_cpeUAN',cpe[3])}
+  if(ebacMin)set('sm_ebacMin',ebacMin[1]);
+  if(ebacID)set('sm_ebacID',ebacID[1]);
+  if(ipceM)set('sm_ipceHrs',ipceM[1]);
+
+  if(!skipPreview){
+    rawMode['sm_']='rich';lastZip['sm_']=zip;
+    const ridMap=await buildRidMap(zip);
+    $('sm_rawText').innerHTML=renderDocPreview(dom,ridMap);
+    $('sm_rawWrap').hidden=false;rawSetView('sm_');
+  }
+  $('sm_upMsg').textContent='Pulled what it could find from the ticket\'s tables. Check every field below — Project ID is never in the PT, so it always needs a manual entry.'+(found.length?' Detected checked credit types: '+found.join(', ')+'.':' No checked (☒) credit types were detected — tick them yourself.');
+  uploadedFlag['sm_']=true;renderMandatory('sm_',checkedCreditsSocial);
+}
+$('sm_file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  resetExtracted('sm_');
+  try{
+    if(/\.docx$/i.test(f.name)){
+      const zip=await JSZip.loadAsync(await f.arrayBuffer());
+      const xml=await zip.file('word/document.xml').async('string');
+      await extractPTSocial(parseXml(xml),zip);
+    }else{
+      const text=await f.text();
+      rawMode['sm_']='plain';lastZip['sm_']=null;
+      $('sm_rawText').textContent=text;$('sm_rawWrap').hidden=false;rawSetView('sm_');
+      $('sm_upMsg').textContent='.txt files skip table parsing — paste field values in manually, or upload the .docx instead.';
+    }
+  }catch(err){$('sm_upMsg').textContent='Could not read that file — paste the details in by hand below.'}
+  e.target.value='';
+};
+
+const smChipInputs=document.querySelectorAll('#sm_creditChips input');
+smChipInputs.forEach(c=>c.addEventListener('change',renderCreditInputsSocial));
+function checkedCreditsSocial(){return Array.from(smChipInputs).filter(c=>c.checked).map(c=>c.value)}
+function renderCreditInputsSocial(){
+  const t=checkedCreditsSocial();let h='';
+  const keep={};document.querySelectorAll('#sm_creditInputs input').forEach(i=>keep[i.id]=i.value);
+  if(t.includes('CME'))h+='<div class="row"><div><label for="sm_cmeHrs">CME max credits (For Physicians)</label><input type="number" step="0.25" id="sm_cmeHrs"></div></div>';
+  if(t.includes('CNE'))h+='<div class="row"><div><label for="sm_cneHrs">CNE max credits (For Nurses)</label><input type="number" step="0.25" id="sm_cneHrs"></div><div><label for="sm_cnePharm">Pharmacology hours <span class="opt">(auto-filled from the PT when provided)</span></label><input type="number" step="0.25" id="sm_cnePharm"></div></div>';
+  if(t.includes('CPE'))h+='<div class="row"><div><label for="sm_cpeHrs">CPE max credits (For Pharmacists)</label><input type="number" step="0.25" id="sm_cpeHrs"></div><div><label for="sm_cpeUAN">Universal Activity Number</label><input type="text" id="sm_cpeUAN"></div></div>';
+  if(t.includes('EBAC'))h+='<div class="row"><div><label for="sm_ebacMin">Total effective education time (minutes)</label><input type="number" id="sm_ebacMin"></div><div><label for="sm_ebacID">EBAC Activity ID #</label><input type="text" id="sm_ebacID"></div></div>';
+  if(t.includes('IPCE'))h+='<div class="row"><div><label for="sm_ipceHrs">IPCE credits <span class="opt">(blank = uses the CME credits)</span></label><input type="number" step="0.25" id="sm_ipceHrs"></div></div>';
+  $('sm_creditInputs').innerHTML=h;
+  Object.keys(keep).forEach(id=>{const el=document.getElementById(id);if(el)el.value=keep[id]});
+  renderMandatory('sm_',checkedCreditsSocial);
+}
+
+$('sm_gen').onclick=()=>{
+  const g=id=>$(id)?$(id).value.trim():'';
+  const num=id=>{const v=parseFloat(g(id));return isNaN(v)?null:v};
+  const title=g('sm_title'),subtitle=g('sm_subtitle'),pid=g('sm_pid'),aud=g('sm_aud'),goal=g('sm_goal'),obj=g('sm_obj');
+  const disc=g('sm_disc'),supp=g('sm_supp'),partner=cleanPartner(g('sm_partner')),logo=g('sm_plogo'),qaid=g('sm_qaid'),teaser=g('sm_teaser');
+  const t=checkedCreditsSocial(),has=k=>t.includes(k);
+  const us=['CME','CNE','CPE'].some(has),ebac=has('EBAC')&&!us,ipce=has('IPCE');
+  const imeOnly=has('IME')&&!us&&!ebac&&!ipce;
+  const ipceH=num('sm_ipceHrs')!==null?num('sm_ipceHrs'):num('sm_cmeHrs');
+  const missing=[];
+  if(!title)missing.push('Title');if(!subtitle)missing.push('Subtitle');if(!pid)missing.push('Project ID');
+  if(!imeOnly){if(!aud)missing.push('Target Audience');if(!goal)missing.push('Goal Statement');if(!obj)missing.push('Learning Objectives');}
+  if(!t.length)missing.push('At least one credit type');if(!qaid)missing.push('Questionnaire ID');
+  if(!$('sm_rdate').value)missing.push('Event date');
+  const rel=$('sm_rdate').value?new Date($('sm_rdate').value+'T00:00:00'):null;
+  let o='';
+  o+=sec('Settings');
+  o+=row('Title',title&&subtitle?title+': '+subtitle:title||subtitle,null,true);
+  o+=row('Team','EDU');
+  o+=sec('Content');
+  o+=row('Project ID',pid);
+  o+=row('Content Type','Roundtable');
+  o+=row('Product Name','Certificate Page');
+  o+=row('Learning Format','Live Activity');
+  o+=row('Content Developer','Medscape');
+  if(rel){const e=new Date(rel);e.setFullYear(e.getFullYear()+1);
+    o+=row('Activity Release Date',fmt(rel))+row('Activity Renew Date',fmt(rel))+row('Activity Expiration Date',fmt(e)+' (release + 1 year — Social Media rule)');
+  }else o+=row('Activity Release / Renew / Expiration Date','Enter the event date above');
+  o+=row('Formatted Teaser',teaser,null,true,'(blank on PT)');
+  o+=row('Primary Competency','Medical Knowledge');
+  o+=row('Supporters',supp?'Pick the matching name from Aspen\'s list (from: "'+supp+'")':'(blank on PT)',null,supp);
+  o+=row('Grant Attribution',supp,null,true);
+  const smLogos=ptLogos['sm_']||[];
+  if(smLogos.length){
+    o+='<div class="field"><div class="k">↳ Partner Logo and Badge (insert below Grant Attribution)</div><div class="v" data-raw="[Partner logo image extracted from the Production Ticket — insert it directly below the Grant Attribution statement]">'+smLogos.map(i=>'<img class="imgthumb" src="'+i.dataUrl+'" alt="'+escAttr(i.name)+'">').join('')+'</div></div>';
+  }else if(logo)o+=row('↳ Partner Logo and Badge (add below Grant Attribution)',logo);
+  o+=row('Partners',partner?'Pick the matching name from Aspen\'s list (from: "'+partner+'")':'(blank on PT)');
+  o+=row('Copyright Holder',ebac?'Medscape Education International AG':'Medscape, LLC',null,true);
+  o+=row('Copyright Statement','Medscape Education © '+(rel?rel.getFullYear():new Date().getFullYear()),null,true);
+  o+=row('Provider Disclosure(s)',(disc?P(esc(disc))+'\n':'')+(ebac?DISC_EBAC:DISC_STD),true);
+  o+=row('Additional Disclosure(s)',$('sm_peer').checked?'<h2>\n    Peer Reviewer\n</h2>\n\n<p>\n    This activity has been peer reviewed and the reviewer '+(ebac?'has disclosed no':'has no')+' relevant financial relationships. \n</p>':'(leave blank — Peer Reviewer box not checked)',$('sm_peer').checked);
+  const imeSection1=[P('This certificate page is associated with a Medscape Education social live event.')];
+  if(partner)imeSection1.push(P(esc(partner)));
+  imeSection1.push(P('<strong>Target Audience and Goal Statement</strong>'));
+  if(aud)imeSection1.push(P(esc(aud.replace(/<<[^>]*>>/g,'').trim())));
+  if(goal)imeSection1.push(P(esc(goal)));
+  if(obj)imeSection1.push(P(toLines(esc(obj))));
+  const imeSection1Body=imeSection1.join('\n');
+  if(imeOnly){
+    o+=row('Target Audience','(leave blank on this page — moved into the Section 1 body below)');
+    o+=row('Goal','(leave blank on this page — moved into the Section 1 body below)');
+    o+=row('Clinical Gap Statement','',null,true,'(always blank)');
+    o+=row('Learning Objective','(leave blank on this page — moved into the Section 1 body below)');
+    o+=row('Misc Provider Statement','(leave blank for IME)');
+    o+=row('Additional Credits Available Text','(leave blank — IME not marked)');
+    o+=row('Instructions for Credit','');
+    o+=row('Disclaimer','');
+    o+=flag('IME ticket: in the example checked, these fields and the Eligibilities tab were all left blank/empty on the main Certificate Page object. That content instead lives on a separate linked "Uncertified Event Page" object — this tool does not yet create or link that second page, so set it up by hand and tell us the steps so IME can be fully automated. The Section 1 body for that linked page is generated below.');
+  }else{
+    o+=row('Target Audience',aud.replace(/<<[^>]*>>/g,'').trim(),null,true);
+    o+=row('Goal',goal,null,true);
+    o+=row('Clinical Gap Statement','',null,true,'(always blank)');
+    o+=row('Learning Objective',obj.split('\n').filter(l=>!/^\s*Slide\s*#?\s*$/i.test(l)).join('\n').replace(/\bSlide\s*#/gi,'').replace(/\n{2,}/g,'\n').trim(),null,true);
+    let misc='';
+    if(partner)misc+=P(esc(partner))+'\n';
+    if(ebac)misc+=P('Medscape Education International AG is an EBAC® accredited provider since 2025.')+'\n'+F_MEI+'\n'+F_EBAC;
+    else if(us){misc+=F_MED+'\n'+F_COM+'\n'+P(ACCRED);
+      if(ipce)misc+='\n'+F_IPCE+'\n'+P('This activity was planned by and for the healthcare team, and learners will receive '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit for learning and change.');}
+    else if(ipce){misc+=F_MED+'\n'+F_IPCE+'\n'+P('This activity was planned by and for the healthcare team, and learners will receive '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit for learning and change.');}
+    o+=row('Misc Provider Statement',misc,true);
+    if(has('EBAC')&&us)o+=flag('EBAC is checked together with CME/CNE/CPE — unusual; the US version was used, please check.');
+    if(ipce&&ipceH===null)o+=flag('IPCE is marked — enter the IPCE credits.');
+    o+=row('Additional Credits Available Text',ipce?'<p>\n    <strong>IPCE</strong><br>\n    '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit(s)\n</p>':'(leave blank — IPCE not marked)',ipce);
+    o+=row('Instructions for Credit',ebac?INSTR_EBAC:INSTR_STD,true);
+    o+=row('Disclaimer',ebac?disclaimer(true):disclaimer(false),true);
+  }
+  o+=sec('Contributors & byline')+'<details><summary>Manual steps</summary><div class="inside">'+esc(STEPS)+'</div></details>';
+  o+=sec('Eligibilities');
+  if(imeOnly){
+    o+=flag('No Eligibilities entry was present for the IME example (Eligibilities showed no credit types at all). Leave this tab empty unless you learn otherwise.');
+  }else{
+    if(has('CME')){const h=num('sm_cmeHrs');
+      o+=block('CME',row('Primary Provider','MedscapeLIVE - Social Event')+row('Primary Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null)+(h===null?flag('Enter CME hours.'):''));
+      o+=block('Paired LOC entry (from CME)',row('Credit Type','LOC')+row('Provider','MedscapeLIVE - Social Event')+row('Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null));}
+    if(has('CNE')){const h=num('sm_cneHrs'),p=num('sm_cnePharm');
+      o+=block('Nurse CE (CNE)',row('Credit Type dropdown','Search "Medscape" → MedscapeLIVE - Social Event')+row('Primary Accreditor','American Nurses Credentialing Center (ANCC)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Pharmacology Hours',p!==null?p.toFixed(2):null)+(h===null?flag('Enter CNE hours.'):'')+(p===null?flag('Pharmacology hours aren\'t in the PT — confirm with compliance rather than assuming 0.'):''));}
+    if(has('CPE')){const h=num('sm_cpeHrs'),u=g('sm_cpeUAN');
+      o+=block('CPE (Pharmacist CE)',row('Credit Type dropdown','Pharmacist CE')+row('Primary Provider','MedscapeLIVE - Pharma')+row('Primary Accreditor','Accreditation Council for Pharmacy Education -- Knowledge-based (ACPE-KNO)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Credit Allocation (CEUs)',h!==null?(h/10).toFixed(3):null)+row('External ID',u,null,true)+(h===null?flag('Enter CPE hours.'):'')+(!u?flag('Enter the Universal Activity Number.'):''));}
+    if(has('EBAC')){const m=num('sm_ebacMin'),id=g('sm_ebacID'),hr=m!==null?m/60:null;
+      o+=block('EBAC (entered as Credit Type "CME")',row('Credit Type dropdown','CME')+row('Primary Provider','Medscape Education International (MEI) EBAC')+row('Primary Accreditor','European Board for Accreditation in Cardiology (EBAC)')+row('Max Credits',hr!==null?hr.toFixed(2):null)+row('External ID',id||null)+flag('Not confirmed on a Social Media example — provider/accreditor assumed unchanged from the standard Certificate Page.'));
+      o+=block('Paired LOC entry (from EBAC)',row('Credit Type','LOC')+row('Provider','Medscape Education International (MEI) EBAC')+row('Accreditor','European Board for Accreditation in Cardiology (EBAC)')+row('Max Credits',hr!==null?hr.toFixed(2):null)+row('External ID',id||null));}
+    ['AAPA','EACCME','CPD'].forEach(k=>{if(has(k))o+=block(k,flag('No confirmed Aspen steps yet for this credit type — set it up by hand, then send over an example.'))});
+    if(!t.length)o+='<div class="empty">Select one or more credit types above.</div>';
+  }
+  o+=block('Accreditation tab (defaults)',row('Include on CME Passport?','No')+row('Is this an IPCE Activity?','No (even when IPCE credit is present)')+row('Is Pharmacy Certificate Program?','No')+row('Register for MIPS?','No'));
+  o+=sec('Activity');
+  o+=row('Questionnaire ID',qaid||'(not entered yet — see steps below)');
+  o+='<details><summary>How to create the QAID</summary><div class="inside">'+esc(QAID_STEPS)+'</div></details>';
+  o+=qaidQuickSection('Social Media Certificate Page',obj,has('EBAC'));
+  o+=row('Exclude Navigation',$('sm_exclnav').checked?'On':'Off');
+  o+=imeOnly
+    ?row('Sections → Section 1 body (on the linked Uncertified Event Page)',imeSection1Body,true)
+    :row('Sections → Section 1 body','This certificate page is associated with a Medscape Education social live event.',null,true);
+  o+=sec('Publishing');
+  o+=row('No Bots','Check')+row('Suppress Site Search','Check')+row('Gated','Check')+row('Include in external search','Uncheck')+row('Ad Display','Suppress All Ads');
+  o+=row('Geographic Permissions','Check Workfront → Geoblock. If anything is listed there, mark it here. If Geoblock is blank, do nothing.');
+  o+=row('Final step','Hit the Staging button — done');
+  $('sm_out').innerHTML=o;
+  $('sm_genMsg').textContent=missing.length?'Still missing: '+missing.join(', '):'All core fields filled in';
+  $('sm_resPanel').hidden=false;
+  $('sm_resPanel').scrollIntoView({behavior:'smooth'});
+};
+$('sm_copy').onclick=async()=>{
+  const lines=Array.from(document.querySelectorAll('#sm_out .field')).map(f=>{const v=f.querySelector('.v');return f.querySelector('.k').textContent+': '+(v.dataset.raw||'—')});
+  try{await navigator.clipboard.writeText(lines.join('\n'));toast('Copied')}catch(e){toast('Copy blocked')}
+};
+
+// ================= Event Entry Page =================
+const SEC1_EVENT='<p>\n    Please click on the button below to join the virtual event.<br>\n    Join Now\n</p>';
+const SEC2_EVENT='<p>\n    Thank you for completing the activity.\n</p>';
+const ADDL_EVENT='<p>\n    <strong>Peer Reviewer:</strong> This activity has been peer reviewed and the reviewer has no relevant financial relationships.\n</p>';
+
+async function extractPTEvent(dom,zip,skipPreview){
+  const rows=allRows(dom);
+  const text=fullText(dom);
+  $('ee_title').value=findValue(rows,/^\s*Title\s*:?/i);
+  $('ee_subtitle').value=findValue(rows,/^\s*Subtitle\s*:?/i);
+  $('ee_aud').value=findValue(rows,/^\s*Live\s*Target\s*Audience/i).replace(/<<[^>]*>>/g,'').trim();
+  $('ee_goal').value=findValue(rows,/^\s*Goal\s*Statement/i);
+  $('ee_gap').value=findValue(rows,/^\s*Gap\s*$/i);
+  $('ee_obj').value=firstColumnLines(findValueNode(dom,/^\s*Learning\s*Objectives/i))
+    .split('\n').filter(l=>!/^\s*Slide\s*#?\s*$/i.test(l) && !/^\s*\d+\s*(-|–|to)\s*\d+\s*$/i.test(l))
+    .join('\n').replace(/\bSlide\s*#/gi,'').replace(/\n{2,}/g,'\n').trim();
+  $('ee_disc').value=findValue(rows,/^\s*Association\s*Disclaimer\s*Statement/i);
+  $('ee_supp').value=findValue(rows,/^\s*Supporter\s*Statement/i);
+  $('ee_partner').value=findValue(rows,/^\s*Partner\s*Statement/i);
+  $('ee_plogo').value=findValue(rows,/^\s*Partner\s*Logo/i);
+  $('ee_teaser').value=findValue(rows,/^\s*Rapid\s*Activity\s*Overview/i);
+  ptLogos['ee_']=await extractCellImages(findLogoRow(dom,/^\s*Partner\s*Logo/i),zip);
+  renderLogoPreview('ee_');
+
+  const dateBlock=findValue(rows,/^\s*Page\s*Display\s*Date\s*and\s*Time/i);
+  const dm=dateBlock.match(/Date:\s*([A-Za-z]+,\s*[A-Za-z]+\s+\d{1,2},\s*\d{4})/i)||dateBlock.match(/([A-Za-z]+\s+\d{1,2},\s*\d{4})/);
+  if(dm){const d=new Date(dm[1]);if(!isNaN(d))$('ee_rdate').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+  const creditAvail=findValue(rows,/^\s*Credit\s*Available/i);
+  const cme=creditAvail.match(/maximum of\s*([\d.]+)/i);
+  const cne=creditAvail.match(/Awarded\s*([\d.]+)\s*contact hour/i);
+  const pharm=creditAvail.match(/([\d.]+)\s*contact hours?\s*(?:are\s+|is\s+)?in\s+(?:the\s+area\s+of\s+)?pharmac\w*/i)
+    ||creditAvail.match(/([\d.]+)\s*pharmac\w*\s+contact hours?/i);
+  const cpe=creditAvail.match(/for\s*([\d.]+)\s*contact hour\(?s?\)?\s*\(([\d.]+)\s*CEUs?\)\s*\(Universal Activity Number:?\s*([A-Z0-9\-]+)\)/i);
+  const ebacMin=creditAvail.match(/Total effective education time:?\s*([\d.]+)\s*minutes/i);
+  const ebacID=creditAvail.match(/EBAC Activity ID\s*#?\s*([\w\-]+)/i);
+  const ipceM=creditAvail.match(/([\d.]+)\s*Interprofessional Continuing Education/i);
+
+  const found=[];
+  if(/☒\s*Peer\s*Reviewer/i.test(text))$('ee_peer').checked=true;
+  ['CME','CNE','CPE','IPCE','AAPA','EBAC','EACCME','IME','CPD'].forEach(k=>{
+    const re=new RegExp('☒\\s*'+k,'i');
+    if(re.test(text)){found.push(k);const cb=document.querySelector('#ee_creditChips input[value="'+k+'"]');if(cb){cb.checked=true}}
+  });
+  renderCreditInputsEvent();
+  const set=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.value=v};
+  if(cme)set('ee_cmeHrs',cme[1]);
+  if(cne)set('ee_cneHrs',cne[1]);
+  if(pharm)set('ee_cnePharm',pharm[1]);
+  if(cpe){set('ee_cpeHrs',cpe[1]);set('ee_cpeUAN',cpe[3])}
+  if(ebacMin)set('ee_ebacMin',ebacMin[1]);
+  if(ebacID)set('ee_ebacID',ebacID[1]);
+  if(ipceM)set('ee_ipceHrs',ipceM[1]);
+
+  if(!skipPreview){
+    rawMode['ee_']='rich';lastZip['ee_']=zip;
+    const ridMap=await buildRidMap(zip);
+    $('ee_rawText').innerHTML=renderDocPreview(dom,ridMap);
+    $('ee_rawWrap').hidden=false;rawSetView('ee_');
+  }
+  $('ee_upMsg').textContent='Pulled what it could find from the ticket\'s tables. Check every field below — Project ID is never in the PT, so it always needs a manual entry.'+(found.length?' Detected checked credit types: '+found.join(', ')+'.':' No checked (☒) credit types were detected — tick them yourself.');
+  uploadedFlag['ee_']=true;renderMandatory('ee_',checkedCreditsEvent);
+}
+$('ee_file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  resetExtracted('ee_');
+  try{
+    if(/\.docx$/i.test(f.name)){
+      const zip=await JSZip.loadAsync(await f.arrayBuffer());
+      const xml=await zip.file('word/document.xml').async('string');
+      await extractPTEvent(parseXml(xml),zip);
+    }else{
+      const text=await f.text();
+      rawMode['ee_']='plain';lastZip['ee_']=null;
+      $('ee_rawText').textContent=text;$('ee_rawWrap').hidden=false;rawSetView('ee_');
+      $('ee_upMsg').textContent='.txt files skip table parsing — paste field values in manually, or upload the .docx instead.';
+    }
+  }catch(err){$('ee_upMsg').textContent='Could not read that file — paste the details in by hand below.'}
+  e.target.value='';
+};
+
+const eeChipInputs=document.querySelectorAll('#ee_creditChips input');
+eeChipInputs.forEach(c=>c.addEventListener('change',renderCreditInputsEvent));
+function checkedCreditsEvent(){return Array.from(eeChipInputs).filter(c=>c.checked).map(c=>c.value)}
+function renderCreditInputsEvent(){
+  const t=checkedCreditsEvent();let h='';
+  const keep={};document.querySelectorAll('#ee_creditInputs input').forEach(i=>keep[i.id]=i.value);
+  if(t.includes('CME'))h+='<div class="row"><div><label for="ee_cmeHrs">CME max credits (For Physicians)</label><input type="number" step="0.25" id="ee_cmeHrs"></div></div>';
+  if(t.includes('CNE'))h+='<div class="row"><div><label for="ee_cneHrs">CNE max credits (For Nurses)</label><input type="number" step="0.25" id="ee_cneHrs"></div><div><label for="ee_cnePharm">Pharmacology hours <span class="opt">(auto-filled from the PT when provided)</span></label><input type="number" step="0.25" id="ee_cnePharm"></div></div>';
+  if(t.includes('CPE'))h+='<div class="row"><div><label for="ee_cpeHrs">CPE max credits (For Pharmacists)</label><input type="number" step="0.25" id="ee_cpeHrs"></div><div><label for="ee_cpeUAN">Universal Activity Number</label><input type="text" id="ee_cpeUAN"></div></div>';
+  if(t.includes('EBAC'))h+='<div class="row"><div><label for="ee_ebacMin">Total effective education time (minutes)</label><input type="number" id="ee_ebacMin"></div><div><label for="ee_ebacID">EBAC Activity ID #</label><input type="text" id="ee_ebacID"></div></div>';
+  if(t.includes('IPCE'))h+='<div class="row"><div><label for="ee_ipceHrs">IPCE credits</label><input type="number" step="0.25" id="ee_ipceHrs"></div></div>';
+  $('ee_creditInputs').innerHTML=h;
+  Object.keys(keep).forEach(id=>{const el=document.getElementById(id);if(el)el.value=keep[id]});
+  renderMandatory('ee_',checkedCreditsEvent);
+}
+
+$('ee_gen').onclick=()=>{
+  const g=id=>$(id)?$(id).value.trim():'';
+  const num=id=>{const v=parseFloat(g(id));return isNaN(v)?null:v};
+  const title=g('ee_title'),subtitle=g('ee_subtitle'),pid=g('ee_pid'),aud=g('ee_aud'),goal=g('ee_goal'),obj=g('ee_obj'),gap=g('ee_gap');
+  const disc=g('ee_disc'),supp=g('ee_supp'),partner=cleanPartner(g('ee_partner')),logo=g('ee_plogo'),qaid=g('ee_qaid'),teaser=g('ee_teaser');
+  const t=checkedCreditsEvent(),has=k=>t.includes(k);
+  const us=['CME','CNE','CPE'].some(has),ebac=has('EBAC')&&!us,ipce=has('IPCE');
+  const ipceH=num('ee_ipceHrs')!==null?num('ee_ipceHrs'):num('ee_cmeHrs');
+  const missing=[];
+  if(!title)missing.push('Title');if(!subtitle)missing.push('Subtitle');if(!pid)missing.push('Project ID');
+  if(!aud)missing.push('Target Audience');if(!goal)missing.push('Goal Statement');if(!obj)missing.push('Learning Objectives');
+  if(!t.length)missing.push('At least one credit type');if(!qaid)missing.push('Questionnaire ID');
+  if(!$('ee_rdate').value)missing.push('Event date');
+  const rel=$('ee_rdate').value?new Date($('ee_rdate').value+'T00:00:00'):null;
+  let o='';
+  o+=sec('Settings');
+  o+=row('Title',title&&subtitle?title+': '+subtitle:title||subtitle,null,true);
+  o+=row('Team','EDU');
+  o+=sec('Content');
+  o+=row('Project ID',pid);
+  o+=row('Content Type','Live Event');
+  o+=row('Product Name','EDU Live Event Entry Page');
+  o+=row('Learning Format','Live Activity');
+  o+=row('Content Developer','Medscape');
+  if(rel){const e=new Date(rel);e.setDate(e.getDate()+28);
+    o+=row('Activity Release Date',fmt(rel))+row('Activity Renew Date',fmt(rel))+row('Activity Expiration Date',fmt(e)+' (release + 4 weeks)');
+  }else o+=row('Activity Release / Renew / Expiration Date','Enter the event date above');
+  o+=row('Formatted Teaser',teaser,null,true,'(blank on PT)');
+  o+=row('Primary Competency','Medical Knowledge');
+  o+=row('Supporters',supp?'Pick the matching name from Aspen\'s list (from: "'+supp+'")':'(blank on PT)',null,supp);
+  o+=row('Grant Attribution',supp,null,true);
+  const eeLogos=ptLogos['ee_']||[];
+  if(eeLogos.length){
+    o+='<div class="field"><div class="k">↳ Partner Logo and Badge (insert below Grant Attribution)</div><div class="v" data-raw="[Partner logo image extracted from the Production Ticket — insert it directly below the Grant Attribution statement]">'+eeLogos.map(i=>'<img class="imgthumb" src="'+i.dataUrl+'" alt="'+escAttr(i.name)+'">').join('')+'</div></div>';
+  }else if(logo)o+=row('↳ Partner Logo and Badge (add below Grant Attribution)',logo);
+  o+=row('Partners',partner?'Pick the matching name from Aspen\'s list (from: "'+partner+'")':'(blank on PT)');
+  o+=row('Copyright Holder',ebac?'Medscape Education International AG':'Medscape, LLC',null,true);
+  o+=row('Copyright Statement','Medscape Education © '+(rel?rel.getFullYear():new Date().getFullYear()),null,true);
+  o+=row('Provider Disclosure(s)',(disc?P(esc(disc))+'\n':'')+(ebac?DISC_EBAC:DISC_STD),true);
+  o+=row('Additional Disclosure(s)',$('ee_peer').checked?ADDL_EVENT:'(leave blank — Peer Reviewer box not checked)',$('ee_peer').checked);
+  o+=row('Target Audience',aud.replace(/<<[^>]*>>/g,'').trim(),null,true);
+  o+=row('Goal',goal,null,true);
+  o+=row('Clinical Gap Statement',gap,null,true,'(blank on PT)');
+  o+=row('Learning Objective',obj.split('\n').filter(l=>!/^\s*Slide\s*#?\s*$/i.test(l)).join('\n').replace(/\bSlide\s*#/gi,'').replace(/\n{2,}/g,'\n').trim(),null,true);
+  let misc='';
+  if(partner)misc+=P(esc(partner))+'\n';
+  if(ebac)misc+=P('Medscape Education International AG is an EBAC® accredited provider since 2025.')+'\n'+F_MEI+'\n'+F_EBAC;
+  else if(us){misc+=F_MED+'\n'+F_COM+'\n'+P(ACCRED);
+    if(ipce)misc+='\n'+F_IPCE+'\n'+P('This activity was planned by and for the healthcare team, and learners will receive '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit for learning and change.');}
+  else if(ipce){misc+=F_MED+'\n'+F_IPCE+'\n'+P('This activity was planned by and for the healthcare team, and learners will receive '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit for learning and change.');}
+  o+=row('Misc Provider Statement',misc,true);
+  if(has('CME')&&has('CNE')&&has('CPE')&&!ipce)o+=flag('CME + CNE + CPE are all checked but IPCE is not — unlike Certificate Page, Event Entry Page does NOT auto-add IPCE for this combination, so it was left out. Confirmed from a real example with this exact combination.');
+  if(has('EBAC')&&us)o+=flag('EBAC is checked together with CME/CNE/CPE — unusual; the US version was used, please check.');
+  if(ipce&&ipceH===null)o+=flag('IPCE is marked — enter the IPCE credits.');
+  o+=row('Additional Credits Available Text',ipce?'<p>\n    <strong>IPCE</strong><br>\n    '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit(s)\n</p>':'(leave blank — IPCE not marked)',ipce);
+  o+=row('Instructions for Credit',ebac?INSTR_EBAC:INSTR_STD,true);
+  o+=row('Disclaimer',ebac?disclaimer(true):disclaimer(false),true);
+  o+=sec('Contributors & byline')+'<details><summary>Manual steps</summary><div class="inside">'+esc(STEPS)+'</div></details>';
+  o+=sec('Eligibilities');
+  if(has('CME')){const h=num('ee_cmeHrs');
+    o+=block('CME',row('Primary Provider','MedscapeLIVE')+row('Primary Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null)+(h===null?flag('Enter CME hours.'):''));
+    o+=block('Paired LOC entry (from CME)',row('Credit Type','LOC')+row('Provider','MedscapeLIVE')+row('Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null));}
+  if(has('CNE')){const h=num('ee_cneHrs'),p=num('ee_cnePharm');
+    o+=block('Nurse CE (CNE)',row('Credit Type dropdown','Search "Medscape" → MedscapeLIVE')+row('Primary Accreditor','American Nurses Credentialing Center (ANCC)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Pharmacology Hours',p!==null?p.toFixed(2):null)+(h===null?flag('Enter CNE hours.'):'')+(p===null?flag('Pharmacology hours aren\'t in the PT — confirm with compliance rather than assuming 0.'):''));}
+  if(has('CPE')){const h=num('ee_cpeHrs'),u=g('ee_cpeUAN');
+    o+=block('CPE (Pharmacist CE)',row('Credit Type dropdown','Pharmacist CE')+row('Primary Provider','MedscapeLIVE - Pharma')+row('Primary Accreditor','Accreditation Council for Pharmacy Education -- Knowledge-based (ACPE-KNO)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Credit Allocation (CEUs)',h!==null?(h/10).toFixed(3):null)+row('External ID',u,null,true)+(h===null?flag('Enter CPE hours.'):'')+(!u?flag('Enter the Universal Activity Number.'):''));}
+  if(has('EBAC')){const m=num('ee_ebacMin'),id=g('ee_ebacID'),hr=m!==null?m/60:null;
+    o+=block('EBAC (entered as Credit Type "CME")',row('Credit Type dropdown','CME')+row('Primary Provider','Medscape Education International (MEI) EBAC')+row('Primary Accreditor','European Board for Accreditation in Cardiology (EBAC)')+row('Max Credits',hr!==null?hr.toFixed(2):null)+row('External ID',id||null)+(m===null?flag('Enter total effective education time (minutes).'):'')+(!id?flag('Enter the EBAC Activity ID #.'):''));
+    o+=block('Paired LOC entry (from EBAC)',row('Credit Type','LOC')+row('Provider','Medscape Education International (MEI) EBAC')+row('Accreditor','European Board for Accreditation in Cardiology (EBAC)')+row('Max Credits',hr!==null?hr.toFixed(2):null)+row('External ID',id||null));}
+  ['AAPA','EACCME','IME','CPD'].forEach(k=>{if(has(k))o+=block(k,flag('No confirmed Aspen steps yet for this credit type — set it up by hand, then send over an example.'))});
+  if(!t.length)o+='<div class="empty">Select one or more credit types above.</div>';
+  o+=block('Accreditation tab (defaults)',row('Include on CME Passport?','No')+row('Is this an IPCE Activity?','No (even when IPCE credit is present)')+row('Is Pharmacy Certificate Program?','No')+row('Register for MIPS?','No'));
+  o+=sec('Activity');
+  o+=row('Questionnaire ID',qaid||'(not entered yet — see steps below)');
+  o+='<details><summary>How to create the QAID</summary><div class="inside">'+esc(QAID_STEPS)+'</div></details>';
+  o+=qaidQuickSection('Event Entry Page',obj,has('EBAC'));
+  o+=row('Exclude Navigation',$('ee_exclnav').checked?'On':'Off');
+  o+=row('Sections → Section 1 Body',SEC1_EVENT,true);
+  o+=row('Sections → Section 2 Body',SEC2_EVENT,true);
+  o+=sec('Publishing');
+  o+=row('No Bots','Check')+row('Suppress Site Search','Check')+row('Gated','Check')+row('Include in external search','Uncheck')+row('Ad Display','Suppress All Ads');
+  o+=row('Geographic Permissions','Check Workfront → Geoblock. If anything is listed there, mark it here. If Geoblock is blank, do nothing.');
+  o+=row('Final step','Hit the Staging button — done');
+  $('ee_out').innerHTML=o;
+  $('ee_genMsg').textContent=missing.length?'Still missing: '+missing.join(', '):'All core fields filled in';
+  $('ee_resPanel').hidden=false;
+  $('ee_resPanel').scrollIntoView({behavior:'smooth'});
+};
+$('ee_copy').onclick=async()=>{
+  const lines=Array.from(document.querySelectorAll('#ee_out .field')).map(f=>{const v=f.querySelector('.v');return f.querySelector('.k').textContent+': '+(v.dataset.raw||'—')});
+  try{await navigator.clipboard.writeText(lines.join('\n'));toast('Copied')}catch(e){toast('Copy blocked')}
+};
+
+// ================= Core Program =================
+const coState={los:[],qs:[],extras:[]};
+const CO_QAID_STEPS='1. Go to https://prof.webmdtools.com/questionnaireadmin and click "Add New Questionnaire."\n2. Enter the program title into "Add New / Edit Existing Questionnaire Title," set "Select Questionnaire Type" to "CME Questionnaire," leave "Questionnaire Is Gated" checked, and click Save.\n3. Add Question 11: click delete next to the existing question 11. Then set "Add new question type" to Matrix, "Add new question" to Radio button question, and click add. Enter the Question 11 text, enter each Learning Objective in the Sub-Questions fields (formatted as described in "How to create the QAID" above — drop the word "Have," fix capital letters, keep the wording), enter the five answers, click Save, and move the question into the #11 spot. (The text, objectives and answers are in the Questionnaire quick setup below.)\n4. Do NOT add the Innovation question (#16) — it is not used for Core Program. For EBAC Core Programs, Questions 11, 12 and 13 are all required (see the quick setup below).\n5. Scroll to the bottom of the questionnaire page and click "Learning Objectives."\n6. Add each Learning Objective using the same formatted text you used for Question 11, keeping the original wording.\n7. After adding each objective, find "Add Learning Objective Level:" and select the matching level. The level is in the "LO Level" column of the "Learning Objectives and KMI Map" table in the ticket. If a level is missing or unclear, do not guess — ask the content developer.\n8. Repeat steps 6–7 for every Learning Objective in the ticket.\n9. Click "Add new Question Form," select "Post-Activity Question Form," under "Add New Question Form Title:" select "CME Posttest," and click Save.\n10. Open the new CME Posttest form.\n11. Click "Add new question type" and select "basic." Under "Add new question" select "Radio button question," then click Add.\n12. Enter the question exactly as written in the ticket (under "Questions (Posttest)"). Enter every answer option exactly as written.\n13. Tick the checkbox next to the correct answer — it is the one highlighted in yellow in the Word document.\n14. Enter the text under "Answer explanation:" from the ticket into the Answer Explanation field.\n15. Map the question to its Learning Objective(s) using the "Question type assessing this objective" and "Question #" columns of the Learning Objectives and KMI Map (for example, if Q1 is listed against an objective, map Question 1 to that objective). Do not infer a mapping from the wording of the question. Click Save.\n16. REPEAT steps 11–15 for EVERY posttest question in the ticket — add one question at a time; one question does not cover the whole posttest.\n17. Note the QAID shown for this questionnaire and enter it in the Questionnaire ID field above.';
+const STAMP_NOTE='Important: For Core Program and Program Production only, open “Get STAMP Tags” in Aspen, click “Get Clinical Tags from STAMP,” then right-click “Curate STAMP Tags” and copy its link. Paste that link into the Workfront field named “Stamp.”';
+const ADDL_CORE='<h2>\n    Peer Reviewer\n</h2>\n\n<p>\n    This activity has been peer reviewed and the reviewer has no relevant financial relationships. \n</p>';
+
+const ccell=tc=>cellText(tc).replace(/[ \t\u00a0]+/g,' ').trim();
+const tblOf=n=>{let x=n.parentNode;while(x&&x.localName!=='tbl')x=x.parentNode;return x};
+function coTableRows(tbl){return Array.from(tbl.getElementsByTagNameNS(W,'tr')).filter(tr=>tblOf(tr)===tbl).map(tr=>Array.from(tr.getElementsByTagNameNS(W,'tc')).filter(tc=>tc.parentNode===tr||tc.parentNode.localName==='sdtContent').map(ccell))}
+function coCheckedAfter(rows,labelRe){
+  const i=rows.findIndex(r=>labelRe.test(r[0]||''));if(i<0)return [];
+  let txt=rows[i].slice(1).join('\n');
+  for(let k=i+1;k<rows.length&&!(rows[k][0]||'').trim();k++)txt+='\n'+rows[k].join('\n');
+  const out=[];txt.replace(/☒\s*([^☐☒\n]+)/g,(m,x)=>{const v=x.replace(/\s+/g,' ').trim();if(v)out.push(v);return m});
+  return out;
+}
+function coParseLOs(dom){
+  const tbl=Array.from(dom.getElementsByTagNameNS(W,'tbl')).find(t=>{const r=coTableRows(t)[0];return r&&/^Upon completion of this activity/i.test((r[0]||'').replace(/\s+/g,' '))&&r.length>=3});
+  if(!tbl)return {header:'',items:[]};
+  const R=coTableRows(tbl),H=R[0];
+  const col=re=>H.findIndex(h=>re.test(h));
+  const cQt=col(/Question\s*type/i),cQn=col(/Question\s*#/i),cLv=col(/LO\s*Level/i);
+  const header=(H[0]||'').replace(/\s+/g,' ').trim();
+  const items=[];let stem='';
+  R.slice(1).forEach(r=>{
+    const text=(r[0]||'').replace(/\s+/g,' ').trim();if(!text)return;
+    const qt=cQt>=0?(r[cQt]||''):'',qn=cQn>=0?(r[cQn]||''):'',lv=cLv>=0?(r[cLv]||''):'';
+    const isStem=!qt&&!qn&&!lv&&/\b(to|the|of|in|for|on|with|regarding|related to|ability to)$/i.test(text);
+    if(isStem){stem=text;items.push({stem:true,text});return}
+    const nums=[];qn.replace(/Q\s*(\d+)/gi,(m,d)=>{nums.push(+d);return m});
+    items.push({stem:false,text,under:stem,qtype:qt,qnums:nums,level:lv});
+  });
+  return {header,items};
+}
+function coParseQuestions(dom){
+  const ps=Array.from(dom.getElementsByTagNameNS(W,'p'));
+  const qs=[];let cur=null,mode=null,pend='';
+  const hl=p=>Array.from(p.getElementsByTagNameNS(W,'r')).some(r=>{const h=Array.from(r.getElementsByTagNameNS(W,'highlight'))[0];return h&&/yellow/i.test(h.getAttribute('w:val')||h.getAttributeNS(W,'val')||'')&&runTxt(r).trim()});
+  for(const p of ps){
+    const tt=Array.from(p.getElementsByTagNameNS(W,'r')).map(runTxt).join('').replace(/[ \t\u00a0]+/g,' ').trim();
+    if(/^Standard\s*Evaluation/i.test(tt))break;
+    if(/^Questions?\s*\(/i.test(tt)){mode=null;continue}
+    let m;
+    if(/^Question\s*Introduction/i.test(tt)){pend=tt.replace(/^Question\s*Introduction[^:]*:\s*/i,'').trim();mode='intro';continue}
+    if((m=tt.match(/^Question\s*(\d+)\s*:\s*(.*)$/i))){cur={n:+m[1],intro:pend,text:m[2].trim(),answers:[],correct:[],expl:''};pend='';qs.push(cur);mode='q';continue}
+    if(!cur&&mode!=='intro')continue;
+    if(/^Answer\s*choices/i.test(tt)){mode='ans';continue}
+    if((m=tt.match(/^Answer\s*explanation\s*:\s*(.*)$/i))){if(cur){cur.expl=m[1].trim();mode='expl'}continue}
+    if(!tt)continue;
+    if(mode==='intro')pend+=(pend?'\n':'')+tt;
+    else if(mode==='q'&&cur)cur.text+='\n'+tt;
+    else if(mode==='ans'&&cur){cur.answers.push(tt);if(hl(p))cur.correct.push(cur.answers.length-1)}
+    else if(mode==='expl'&&cur)cur.expl+='\n'+tt;
+  }
+  return qs;
+}
+function coExtras(){
+  const x=[];
+  if(!coState.qs.length)x.push('Posttest questions (none found under “Questions (Posttest)”)');
+  coState.los.filter(o=>!o.stem&&!o.level).forEach(o=>x.push('LO Level for: '+o.text));
+  return x;
+}
+
+async function extractPTCore(dom,zip,skipPreview){
+  const rows=allRows(dom);
+  const ft=fullText(dom);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el&&v!=null&&v!=='')el.value=v};
+  set('co_title',findValue(rows,/^\s*Title\s*:/i));
+  set('co_pid',findValue(rows,/^\s*Activity\s*SF#/i));
+  set('co_teaser',findValue(rows,/^\s*Hook\s*Statement/i));
+  set('co_aud',findValue(rows,/^\s*Target\s*Audience/i).replace(/<<[^>]*>>/g,'').trim());
+  set('co_goal',findValue(rows,/^\s*Goal\s*Statement/i));
+  set('co_gap',findValue(rows,/^\s*Gap\b/i));
+  const pr=findValue(rows,/^\s*Partner\s*Statement/i);
+  set('co_partner',/enter partner|click or tap here to enter text/i.test(pr)?'':pr);
+  set('co_primary',coCheckedAfter(rows,/^\s*ABMS\/ACGME\s*Core\s*Competencies/i).join('; '));
+  set('co_secondary',coCheckedAfter(rows,/^\s*IPCE\s*Competencies/i).join('\n'));
+  const lo=coParseLOs(dom);coState.los=lo.items;
+  set('co_obj',lo.items.length?[lo.header].concat(lo.items.map(o=>o.text)).filter(Boolean).join('\n'):'');
+  coState.qs=coParseQuestions(dom);
+  coState.extras=coExtras();
+  const badgeNeeded=/☒\s*Yes/i.test(findValue(rows,/^\s*Partner\s*badge/i));
+  ptLogos['co_']=badgeNeeded?await extractCellImages(findLogoRow(dom,/^\s*Partner\s*badge/i),zip):[];
+  renderLogoPreview('co_');
+
+  const a=ft.search(/Credits?\s*Available/i),b=ft.search(/Partner\s*Statement/i);
+  const ct=a>=0?(b>a?ft.slice(a,b):ft.slice(a)):ft;
+  const mm=(re,t)=>(t||ct).match(re);
+  const found=[];
+  const flags={CME:/☒\s*ACCME/i,MOC:/☒\s*ABIM\s*MOC/i,CNE:/☒\s*ANCC/i,CPE:/☒\s*ACPE/i,AAPA:/☒\s*AAPA/i,IPCE:/☒\s*IPCE/i,EBAC:/☒\s*EBAC/i};
+  Object.keys(flags).forEach(k=>{if(flags[k].test(ft)){found.push(k);const cb=document.querySelector('#co_creditChips input[value="'+k+'"]');if(cb)cb.checked=true}});
+  if(/☒\s*Peer\s*Reviewer/i.test(ft))$('co_peer').checked=true;
+  renderCreditInputsCore();
+  const cme=mm(/maximum of\s*([\d.]+)/i)||mm(/ACCME\s*([\d.]+)/i);
+  const mocH=mm(/up to\s*([\d.]+)\s*MOC/i),mocI=mm(/PARS\s*Activity\s*Identifier\s*(\d+)/i);
+  const cne=mm(/Awarded\s*([\d.]+)\s*contact hour/i);
+  const pharm=mm(/([\d.]+)\s*contact hours?\s*(?:are\s+|is\s+)?in\s+(?:the\s+area\s+of\s+)?pharmac\w*/i)||mm(/([\d.]+)\s*pharmac\w*\s+contact hours?/i);
+  const cpe=mm(/for\s*([\d.]+)\s*contact hour\(?s?\)?\s*\(([\d.]+)\s*CEUs?\)\s*\(Universal Activity Number:?\s*([A-Z0-9\-]+)\)/i);
+  const aapa=mm(/AAPA:\s*([\d.]+)/i);
+  const ipce=mm(/receive\s*([\d.]+)\s*Interprofessional/i)||mm(/IPCE:\s*([\d.]+)/i);
+  if(cme)set('co_cmeHrs',cme[1]);
+  if(mocH)set('co_mocHrs',mocH[1]);if(mocI)set('co_mocID',mocI[1]);
+  if(cne)set('co_cneHrs',cne[1]);
+  if(pharm)set('co_cnePharm',pharm[1]);
+  if(cpe){set('co_cpeHrs',cpe[1]);set('co_cpeUAN',cpe[3])}
+  if(aapa)set('co_aapaHrs',aapa[1]);
+  if(ipce)set('co_ipceHrs',ipce[1]);
+
+  if(!skipPreview){
+    rawMode['co_']='rich';lastZip['co_']=zip;
+    const ridMap=await buildRidMap(zip);
+    $('co_rawText').innerHTML=renderDocPreview(dom,ridMap);
+    $('co_rawWrap').hidden=false;rawSetView('co_');
+  }
+  $('co_upMsg').textContent='Pulled what it could find from the ticket. Check every field below.'+(found.length?' Detected checked credit types: '+found.join(', ')+'.':' No checked (☒) credit types were detected — tick them yourself.')+' Found '+coState.qs.length+' posttest question'+(coState.qs.length===1?'':'s')+' and '+coState.los.filter(o=>!o.stem).length+' learning objective'+(coState.los.filter(o=>!o.stem).length===1?'':'s')+'.';
+  uploadedFlag['co_']=true;renderMandatory('co_',checkedCreditsCore);
+}
+$('co_file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  resetExtracted('co_');
+  try{
+    if(/\.docx$/i.test(f.name)){
+      const zip=await JSZip.loadAsync(await f.arrayBuffer());
+      const xml=await zip.file('word/document.xml').async('string');
+      await extractPTCore(parseXml(xml),zip);
+    }else{
+      const text=await f.text();
+      rawMode['co_']='plain';lastZip['co_']=null;
+      $('co_rawText').textContent=text;$('co_rawWrap').hidden=false;rawSetView('co_');
+      $('co_upMsg').textContent='.txt files skip table parsing — paste field values in manually, or upload the .docx instead.';
+    }
+  }catch(err){$('co_upMsg').textContent='Could not read that file — paste the details in by hand below.'}
+  e.target.value='';
+};
+
+const coChipInputs=document.querySelectorAll('#co_creditChips input');
+coChipInputs.forEach(c=>c.addEventListener('change',renderCreditInputsCore));
+function checkedCreditsCore(){return Array.from(coChipInputs).filter(c=>c.checked).map(c=>c.value)}
+function renderCreditInputsCore(){
+  const t=checkedCreditsCore();let h='';
+  const keep={};document.querySelectorAll('#co_creditInputs input').forEach(i=>keep[i.id]=i.value);
+  if(t.includes('CME'))h+='<div class="row"><div><label for="co_cmeHrs">CME max credits (For Physicians)</label><input type="number" step="0.25" id="co_cmeHrs"></div></div>';
+  if(t.includes('MOC'))h+='<div class="row"><div><label for="co_mocHrs">ABIM MOC max credits</label><input type="number" step="0.25" id="co_mocHrs"></div><div><label for="co_mocID">PARS Activity Identifier</label><input type="text" id="co_mocID"></div></div>';
+  if(t.includes('CNE'))h+='<div class="row"><div><label for="co_cneHrs">CNE max credits (For Nurses)</label><input type="number" step="0.25" id="co_cneHrs"></div><div><label for="co_cnePharm">Pharmacology hours <span class="opt">(auto-filled from the PT when provided)</span></label><input type="number" step="0.25" id="co_cnePharm"></div></div>';
+  if(t.includes('CPE'))h+='<div class="row"><div><label for="co_cpeHrs">CPE max credits (For Pharmacists)</label><input type="number" step="0.25" id="co_cpeHrs"></div><div><label for="co_cpeUAN">Universal Activity Number</label><input type="text" id="co_cpeUAN"></div></div>';
+  if(t.includes('AAPA'))h+='<div class="row"><div><label for="co_aapaHrs">AAPA max credits (For Physician Assistants)</label><input type="number" step="0.25" id="co_aapaHrs"></div></div>';
+  if(t.includes('IPCE'))h+='<div class="row"><div><label for="co_ipceHrs">IPCE credits</label><input type="number" step="0.25" id="co_ipceHrs"></div></div>';
+  if(t.includes('EBAC'))h+='<div class="row"><div><label for="co_ebacMin">Total effective education time (minutes)</label><input type="number" id="co_ebacMin"></div><div><label for="co_ebacID">EBAC Activity ID #</label><input type="text" id="co_ebacID"></div></div>';
+  $('co_creditInputs').innerHTML=h;
+  Object.keys(keep).forEach(id=>{const el=document.getElementById(id);if(el)el.value=keep[id]});
+  renderMandatory('co_',checkedCreditsCore);
+}
+
+// Release date = the day the publisher creates the Core Program (never from the ticket or an earlier item)
+const coToday=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function coSetToday(){const el=$('co_rdate');el.value=coToday();el.dataset.auto='1'}
+$('co_rdate').addEventListener('input',()=>{$('co_rdate').dataset.auto=''});
+coSetToday();
+
+function qaidQuickSectionCore(objRaw,ebac){
+  const lo=(objRaw||'').trim();
+  let h=sec('Questionnaire quick setup — Core Program');
+  h+='<div class="qa-admin">Open the questionnaire tool: <a href="'+QAID_ADMIN_URL+'" target="_blank" rel="noopener">'+QAID_ADMIN_URL+'</a></div>';
+  h+='<div class="qa-note">The full start-to-finish process is in "How to create the QAID — Core Program" above. This section covers the questions and posttest content for this ticket.</div>';
+  h+='<div class="qa-q"><strong>Question 11 — Learning objectives feedback</strong></div>';
+  h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><strong>'+esc(Q11_MATRIX_TEXT)+'</strong></span>'+copyBtn(Q11_MATRIX_TEXT)+'</div>';
+  h+='<div class="qa-note">'+esc(Q11_LO_NOTE)+'</div>';
+  if(lo)h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><strong>'+esc(lo)+'</strong></span>'+copyBtn(lo)+'</div>';
+  else h+='<div class="qa-note">No Learning Objectives available yet — upload the Production Ticket or paste them into the Learning Objectives field above, then generate again. Question 11 must use that exact content.</div>';
+  h+='<div class="qa-meta">Question type: Matrix / Radio button question &middot; Answers: '+esc(Q11_ANSWERS)+' '+copyBtn(Q11_ANSWERS.split(' / ').join('\n'),'Copy answers')+'</div>';
+  h+='<div class="qa-meta">Required for all five page types. Delete the existing question 11 first, then move this one into the #11 spot.</div>';
+  if(ebac){
+    h+=qaidQuickBlock(12,'Scientific rigor (EBAC)','Basic / Radio button question',Q12_EBAC_TEXT,Q12_EBAC_ANSWERS,'Required for EBAC on all five page types. Delete the existing question 12 first, then move this one into the #12 spot.');
+    h+=qaidQuickBlock(13,'Bias identification (EBAC)','Basic / Radio button question',Q13_EBAC_TEXT,Q13_EBAC_ANSWERS,'Required for EBAC on all five page types. Move this one into the #13 spot.');
+  }
+  h+='<div class="qa-note">Core Program does not use the Innovation question (#16).</div>';
+  h+='<div class="qa-q"><strong>Learning Objectives and LO Level</strong></div>';
+  h+='<div class="qa-note">After Question 11, follow "How to create the QAID — Core Program" above: click "Learning Objectives" at the bottom of the questionnaire, add each objective, and select its LO Level under "Add Learning Objective Level:". Levels below come straight from the ticket — if one is missing, do not guess.</div>';
+  const objs=coState.los.filter(o=>!o.stem);
+  objs.forEach((o,i)=>{
+    h+='<div class="qa-qtext"><span style="white-space:pre-wrap">'+(o.under?'<span class="qa-meta">'+esc(o.under)+'</span><br>':'')+'<strong>'+esc(o.text)+'</strong><br><span class="qa-meta">LO Level in the ticket: '+(o.level?'<strong>'+esc(o.level)+'</strong>':'<span class="flag">not found — do not guess</span>')+'</span></span>'+copyBtn(o.text)+'</div>';
+  });
+  if(!objs.length)h+='<div class="qa-note">No Learning Objectives were read from the ticket.</div>';
+  h+='<div class="qa-q"><strong>CME Posttest questions ('+coState.qs.length+' found in the ticket)</strong></div>';
+  h+='<div class="qa-note">Add each question one at a time: "Add new question type" → basic → "Add new question" → Radio button question → Add. Repeat for every question below.</div>';
+  coState.qs.forEach(q=>{
+    h+='<div class="qa-q"><strong>Question '+q.n+'</strong></div>';
+    if(q.intro)h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><span class="qa-meta">Question introduction</span><br>'+esc(q.intro)+'</span>'+copyBtn(q.intro)+'</div>';
+    h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><strong>'+esc(q.text)+'</strong></span>'+copyBtn(q.text)+'</div>';
+    h+='<div class="qa-meta">Answer options '+copyBtn(q.answers.join('\n'),'Copy answers')+'</div>';
+    q.answers.forEach((a,i)=>{
+      const ok=q.correct.includes(i);
+      h+='<div class="qa-qtext'+(ok?' qa-correct':'')+'"><span style="white-space:pre-wrap">'+esc(a)+(ok?' <strong>✔ correct answer (highlighted yellow in the ticket) — tick its checkbox</strong>':'')+'</span>'+copyBtn(a)+'</div>';
+    });
+    if(!q.answers.length)h+='<div class="flag">No answer options were found for this question.</div>';
+    else if(!q.correct.length)h+='<div class="flag">No yellow-highlighted answer was found for this question — check the ticket; do not guess.</div>';
+    else if(q.correct.length>1)h+='<div class="flag">More than one answer is highlighted yellow — check the ticket.</div>';
+    h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><span class="qa-meta">Answer explanation</span><br>'+(q.expl?esc(q.expl):'<span class="flag">not found in the ticket</span>')+'</span>'+(q.expl?copyBtn(q.expl):'')+'</div>';
+    const mapped=objs.filter(o=>o.qnums.includes(q.n)&&(!o.qtype||/posttest/i.test(o.qtype)));
+    h+='<div class="qa-qtext"><span style="white-space:pre-wrap"><span class="qa-meta">Learning Objective mapping (from the ticket\'s "Question #" column)</span><br>'+(mapped.length?mapped.map(o=>esc(o.text)).join('\n'):'<span class="flag">No objective in the ticket lists Q'+q.n+' — do not infer a mapping</span>')+'</span>'+(mapped.length?copyBtn(mapped.map(o=>o.text).join('\n')):'')+'</div>';
+  });
+  if(!coState.qs.length)h+='<div class="flag">No posttest questions were found under "Questions (Posttest)" in the ticket.</div>';
+  return h;
+}
+
+$('co_gen').onclick=()=>{
+  const g=id=>$(id)?$(id).value.trim():'';
+  const num=id=>{const v=parseFloat(g(id));return isNaN(v)?null:v};
+  if($('co_rdate').dataset.auto==='1')coSetToday();
+  const title=g('co_title'),pid=g('co_pid'),aud=g('co_aud'),goal=g('co_goal'),obj=g('co_obj'),gap=g('co_gap'),teaser=g('co_teaser');
+  const partner=cleanPartner(g('co_partner')),qaid=g('co_qaid'),primary=g('co_primary'),secondary=g('co_secondary');
+  const t=checkedCreditsCore(),has=k=>t.includes(k);
+  const us=['CME','CNE','CPE','AAPA','MOC'].some(has),ebac=has('EBAC')&&!us,ipce=has('IPCE');
+  const ipceH=num('co_ipceHrs')!==null?num('co_ipceHrs'):num('co_cmeHrs');
+  const missing=[];
+  if(!title)missing.push('Title');if(!pid)missing.push('Project ID');
+  if(!aud)missing.push('Target Audience');if(!goal)missing.push('Goal Statement');if(!obj)missing.push('Learning Objectives');
+  if(!t.length)missing.push('At least one credit type');if(!qaid)missing.push('Questionnaire ID');
+  coExtras().forEach(x=>missing.push(x));
+  const rel=new Date($('co_rdate').value+'T00:00:00');
+  let o='';
+  o+=sec('Settings');
+  o+=row('Title',title,null,true);
+  o+=row('Team','EDU');
+  o+=sec('Content');
+  o+=row('Project ID',pid);
+  o+=row('Content Type','Clinical Brief');
+  o+=row('Product Name','Clinical Briefs');
+  o+=row('Learning Format','Enduring Material');
+  o+=row('Content Developer','Medscape');
+  if(!isNaN(rel)){
+    const e=new Date(rel);const m=e.getMonth();e.setFullYear(e.getFullYear()+3);if(e.getMonth()!==m)e.setDate(0);
+    o+=row('Activity Release Date',fmt(rel)+' (today)')+row('Activity Renew Date',fmt(rel))+row('Activity Expiration Date',fmt(e)+' (release + 3 years)');
+  }else o+=row('Activity Release / Renew / Expiration Date','Enter the release date above');
+  o+=row('Formatted Teaser',teaser,null,true,'(Hook Statement (Teaser) not found in the ticket)');
+  o+=row('Content Focus','Select the appropriate tags from the Workfront field named “Article Content Focus.”');
+  o+=flag('Content Focus tags must come from Workfront’s “Article Content Focus” field — they are not generated or inferred from the ticket.');
+  o+=row('Primary Competency',primary,null,true,'(no ABMS/ACGME competency box is marked in the ticket)');
+  o+=row('Secondary Competencies',secondary,null,true,'(no IPCE competency box is marked in the ticket)');
+  o+=row('Supporters','Medscape - Supporter',null,true);
+  o+=row('Grant Attribution','Developed and funded by Medscape.',null,true);
+  const logos=ptLogos['co_']||[];
+  if(logos.length)o+='<div class="field"><div class="k">↳ Partner Logo and Badge (insert below Grant Attribution)</div><div class="v" data-raw="[Partner logo image extracted from the Production Ticket — insert it directly below the Grant Attribution statement]">'+logos.map(i=>'<img class="imgthumb" src="'+i.dataUrl+'" alt="'+escAttr(i.name)+'">').join('')+'</div></div>';
+  o+=row('Partners',partner?'Pick the matching name from Aspen\'s list (from: "'+partner+'")':'(blank on PT)');
+  o+=row('Copyright Holder','Medscape, LLC',null,true);
+  o+=row('Copyright Statement','Medscape Education © '+(isNaN(rel)?new Date().getFullYear():rel.getFullYear()),null,true);
+  o+=row('Provider Disclosure(s)',DISC_STD,true);
+  o+=row('Additional Disclosure(s)',$('co_peer').checked?ADDL_CORE:'(leave blank — Peer Reviewer box not checked)',$('co_peer').checked);
+  o+=row('Target Audience',aud.replace(/<<[^>]*>>/g,'').trim(),null,true);
+  o+=row('Goal',goal,null,true);
+  o+=row('Clinical Gap Statement',gap,null,true,'(blank on PT)');
+  o+=row('Learning Objective',obj,null,true);
+  let misc='';
+  if(partner)misc+=P(esc(partner))+'\n';
+  if(ebac)misc+=P('Medscape Education International AG is an EBAC® accredited provider since 2025.')+'\n'+F_MEI+'\n'+F_EBAC;
+  else if(us){misc+=F_MED+'\n'+F_COM+'\n'+P(ACCRED);
+    if(ipce)misc+='\n'+F_IPCE+'\n'+P('This activity was planned by and for the healthcare team, and learners will receive '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit for learning and change.');}
+  else if(ipce)misc+=F_MED+'\n'+F_IPCE+'\n'+P('This activity was planned by and for the healthcare team, and learners will receive '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit for learning and change.');
+  o+=row('Misc Provider Statement',misc,true);
+  if(has('EBAC')&&us)o+=flag('EBAC is checked together with other credits — unusual; the US version was used, please check.');
+  if(ipce&&ipceH===null)o+=flag('IPCE is marked — enter the IPCE credits.');
+  o+=row('Additional Credits Available Text',ipce?'<p>\n    <strong>IPCE</strong><br>\n    '+(ipceH!==null?ipceH.toFixed(2):'[IPCE credits]')+' Interprofessional Continuing Education (IPCE) credit(s)\n</p>':'(leave blank — IPCE not marked)',ipce);
+  o+=row('Instructions for Credit',ebac?INSTR_EBAC:INSTR_STD,true);
+  o+=row('Disclaimer',ebac?disclaimer(true):disclaimer(false),true);
+  o+=sec('Contributors & byline')+'<details><summary>Manual steps</summary><div class="inside">'+esc(STEPS)+'</div></details>';
+  o+=sec('STAMP Tags')+'<div class="stamp-note">'+esc(STAMP_NOTE)+'</div>';
+  o+=sec('Eligibilities');
+  const med='Medscape';
+  if(has('CME')){const h=num('co_cmeHrs');
+    o+=block('CME',row('Primary Provider',med)+row('Primary Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null)+(h===null?flag('Enter CME hours.'):''));
+    o+=block('Paired LOC entry (from CME)',row('Credit Type','LOC')+row('Provider',med)+row('Accreditor','American Medical Association Physicians Recognition Award (AMA PRA)')+row('Max Credits',h!==null?h.toFixed(2):null));}
+  if(has('MOC')){const h=num('co_mocHrs')!==null?num('co_mocHrs'):num('co_cmeHrs'),id=g('co_mocID');
+    o+=block('ABIM MOC',row('Credit Type dropdown','MOC Credit')+row('Primary Provider',med)+row('Primary Accreditor','ABIM MOC')+row('Max Credits',h!==null?h.toFixed(2):null)+row('External ID',id||null,null,true)+(h===null?flag('Enter the MOC credits.'):'')+(!id?flag('Enter the PARS Activity Identifier.'):''));}
+  if(has('CNE')){const h=num('co_cneHrs'),p=num('co_cnePharm');
+    o+=block('Nurse CE (CNE)',row('Credit Type dropdown','Nurse CE')+row('Primary Provider',med)+row('Primary Accreditor','American Nurses Credentialing Center (ANCC)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Pharmacology Hours',p!==null?p.toFixed(2):null)+(h===null?flag('Enter CNE hours.'):'')+(p===null?flag('Pharmacology hours aren\'t in the PT — confirm with compliance rather than assuming 0.'):''));}
+  if(has('CPE')){const h=num('co_cpeHrs'),u=g('co_cpeUAN');
+    o+=block('CPE (Pharmacist CE)',row('Credit Type dropdown','Pharmacist CE')+row('Primary Provider','Medscape (9544) - Pharma Provider')+row('Primary Accreditor','Accreditation Council for Pharmacy Education -- Knowledge-based (ACPE-KNO)')+row('Max Credits',h!==null?h.toFixed(2):null)+row('Credit Allocation (CEUs)',h!==null?(h/10).toFixed(3):null)+row('External ID',u||null,null,true)+(h===null?flag('Enter CPE hours.'):'')+(!u?flag('Enter the Universal Activity Number.'):''));}
+  if(has('AAPA')){const h=num('co_aapaHrs');
+    o+=block('Physician Assistant CE (AAPA)',row('Credit Type dropdown','Physician Assistant CE')+row('Primary Provider',med)+row('Primary Accreditor','American Academy of Physician Assistants (AAPA)')+row('Max Credits',h!==null?h.toFixed(2):null)+(h===null?flag('Enter the AAPA credits.'):''));}
+  if(has('EBAC'))o+=block('EBAC',flag('No confirmed Aspen steps for EBAC on a Core Program yet — set it up by hand and send over an example. The EBAC questionnaire rules (Questions 11, 12, 13) still apply.'));
+  if(!t.length)o+='<div class="empty">Select one or more credit types above.</div>';
+  o+=block('Accreditation tab (defaults)',row('Include on CME Passport?','No')+row('Is this an IPCE Activity?','No (even when IPCE credit is present)')+row('Is Pharmacy Certificate Program?','No')+row('Register for MIPS?','No')+row('Commercial Support Received?','No')+row('Register for MOC?','No'));
+  o+=sec('Activity');
+  o+=row('Questionnaire ID',qaid||'(not entered yet — see steps below)');
+  o+='<details><summary>How to create the QAID — Core Program</summary><div class="inside">'+esc(CO_QAID_STEPS)+'</div></details>';
+  o+=qaidQuickSectionCore(obj,has('EBAC'));
+  o+=row('Exclude Navigation',$('co_exclnav').checked?'On':'Off');
+  o+=sec('Publishing');
+  o+=row('Publishing section','No changes for Core Program — leave it as it appears.');
+  o+=row('Final step','Hit the Staging button — done');
+  $('co_out').innerHTML=o;
+  $('co_genMsg').textContent=missing.length?'Still missing: '+missing.join(', '):'All core fields filled in';
+  $('co_resPanel').hidden=false;
+  $('co_resPanel').scrollIntoView({behavior:'smooth'});
+};
+$('co_copy').onclick=async()=>{
+  const lines=Array.from(document.querySelectorAll('#co_out .field')).map(f=>{const v=f.querySelector('.v');return f.querySelector('.k').textContent+': '+(v.dataset.raw||'—')});
+  try{await navigator.clipboard.writeText(lines.join('\n'));toast('Copied')}catch(e){toast('Copy blocked')}
+};
+</script>
+</body>
+</html>
